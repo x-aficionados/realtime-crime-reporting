@@ -1,0 +1,60 @@
+version: '3'
+services:
+  webserver:
+    image: nginx:alpine
+    container_name: webserver
+    tty: true
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - crime-network
+    depends_on:
+      - zookeeper
+      - kafka
+      - crime-producer
+  zookeeper:
+    image: wurstmeister/zookeeper
+    container_name: zookeeper
+    expose:
+      - 2181
+    networks:
+      - crime-network
+
+  kafka:
+    image: wurstmeister/kafka
+    container_name: kafka
+    expose:
+      - 9092
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: kafka
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    depends_on:
+      - zookeeper
+    networks:
+      - crime-network
+
+  crime-producer:
+    build: ./crime-producer
+    image: crime-producer
+    container_name: crime-producer
+    ports:
+      - 5001:5001
+    volumes:
+      - ./crime-producer/crime_producer:/code/crime_producer
+    environment:
+      - SERVICE_TAGS=dev
+      - SERVICE_NAME=crime-producer
+      - UVICORN_PORT=5001
+      - UVICORN_HOST=0.0.0.0
+      - UVICORN_ROOT_PATH=/api/v1/
+    depends_on:
+      - kafka
+    networks:
+      - crime-network
+
+networks:
+  crime-network:
+    driver: bridge
