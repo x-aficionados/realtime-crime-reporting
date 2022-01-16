@@ -2,7 +2,7 @@
 name = "crime-producer"
 version = "0.1.0"
 description = ""
-authors = ["harsh8398 <pharsh58@gmail.com>"]
+authors = ["harsh8398 <pharsh58@gmail.com>", "ShreyaTalati <talatishreya2@gmail.com"]
 
 [tool.poetry.dependencies]
 python = "^3.9"

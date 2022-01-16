@@ -40,8 +40,8 @@ services:
     build: ./crime-producer
     image: crime-producer
     container_name: crime-producer
-    ports:
-      - 5001:5001
+    expose:
+      - 5001
     volumes:
       - ./crime-producer/crime_producer:/code/crime_producer
     environment:
