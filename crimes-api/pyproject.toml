@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "crime-producer"
+name = "crimes-api"
 version = "0.1.0"
 description = ""
 authors = ["harsh8398 <pharsh58@gmail.com>", "ShreyaTalati <talatishreya2@gmail.com"]

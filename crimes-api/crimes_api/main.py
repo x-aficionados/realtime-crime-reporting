@@ -1,9 +1,23 @@
+from typing import Optional
+
+import time
 import json
+import uuid
 
 from kafka import KafkaProducer, KafkaConsumer
 from fastapi import FastAPI
+from pydantic import BaseModel
+
+
+class Crime(BaseModel):
+    type: str
+    email_id: str
+    lat: float
+    lon: float
+
 
 app = FastAPI()
+
 producer = KafkaProducer(
     bootstrap_servers="kafka:9092",
     api_version=(0, 10, 1),
@@ -19,16 +33,13 @@ consumer = KafkaConsumer(
 )
 
 
-@app.get("/")
-def read_root():
-    return {"Hello": "World!"}
-
-
 @app.post("/crimes")
-def report_crime():
-    producer.send("crime", {"crime": "Robbery"})
+def report_crime(crime: Crime):
+    # status should be later set to open from kafka consumer
+    crime = {**crime.dict(), "timestamp": time.time(), "id": str(uuid.uuid4())}
+    producer.send("crime", crime)
     producer.flush()
-    return {"result": "Successfully sent message to Kafka"}
+    return {"id": crime["id"]}
 
 
 @app.get("/crimes")

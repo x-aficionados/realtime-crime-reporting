@@ -14,7 +14,7 @@ services:
     depends_on:
       - zookeeper
       - kafka
-      - crime-producer
+      - crimes-api
   zookeeper:
     image: wurstmeister/zookeeper
     container_name: zookeeper
@@ -36,14 +36,14 @@ services:
     networks:
       - crime-network
 
-  crime-producer:
-    build: ./crime-producer
-    image: crime-producer
-    container_name: crime-producer
+  crimes-api:
+    build: ./crimes-api
+    image: crimes-api
+    container_name: crimes-api
     expose:
       - 5001
     volumes:
-      - ./crime-producer/crime_producer:/code/crime_producer
+      - ./crimes-api/crimes_api:/code/crimes_api
     environment:
       - SERVICE_TAGS=dev
       - SERVICE_NAME=crime-producer
