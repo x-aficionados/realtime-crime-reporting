@@ -7,6 +7,7 @@ import uuid
 from kafka import KafkaProducer, KafkaConsumer
 from fastapi import FastAPI
 from pydantic import BaseModel
+from pymongo import MongoClient
 
 
 class Crime(BaseModel):
@@ -32,6 +33,12 @@ consumer = KafkaConsumer(
     consumer_timeout_ms=1000,
 )
 
+try:
+    client = MongoClient('mongo-db', 27017)
+    db = client.crime_info
+except Exception as e:
+    print("Could not connect to MongoDB: {}".format(e))
+
 
 @app.post("/crimes")
 def report_crime(crime: Crime):
@@ -45,6 +52,25 @@ def report_crime(crime: Crime):
 @app.get("/crimes")
 def get_crimes():
     crimes = []
+    inserted = []
     for msg in consumer:
         crimes.append(msg.value)
-    return {"crimes": crimes}
+        record = msg.value
+        crime_id = record['id']
+        email_id = record['email_id']
+        lat = record['lat']
+        long = record['lon']
+        type = record['type']
+        timestamp = record['timestamp']
+        status = "open"
+        crimes.append(msg.value)
+        try:
+            crime_rec = {'crime_id': crime_id, 'email_id': email_id, 'lat': lat,
+                         'long': long, 'type': type, 'timestamp': timestamp, 'status': status}
+            inserted.append(json.dumps(crime_rec))
+            collection_name = db["raw_crime_info"]
+            collection_name.insert_one(crime_rec)
+        except Exception as e:
+            # pass
+            print("Could not insert into MongoDB: {}".format(e))
+    return ({"crimes": crimes},{"inserted": inserted})
