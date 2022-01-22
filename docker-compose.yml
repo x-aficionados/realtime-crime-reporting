@@ -46,6 +46,8 @@ services:
       - 5001
     volumes:
       - ./crimes-api/crimes_api:/code/crimes_api
+    env_file:
+      - .env
     environment:
       - SERVICE_TAGS=dev
       - SERVICE_NAME=crime-producer
@@ -66,9 +68,11 @@ services:
     volumes:
       - ./ui/public:/code/public
       - ./ui/src:/code/src
+    env_file:
+      - .env
     environment:
-      SERVICE_TAGS: dev
-      SERVICE_NAME: ui
+      - SERVICE_TAGS=dev
+      - SERVICE_NAME=ui
     networks:
       - crime-network
     stdin_open: true

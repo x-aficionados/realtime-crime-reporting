@@ -5,8 +5,12 @@ import json
 import uuid
 
 from kafka import KafkaProducer, KafkaConsumer
-from fastapi import FastAPI
+from fastapi import FastAPI, Header, HTTPException
+from starlette.status import HTTP_401_UNAUTHORIZED
 from pydantic import BaseModel
+
+from .dependency import is_validate_google_id_token
+from .constants import CLIENT_ID
 
 
 class Crime(BaseModel):
@@ -48,3 +52,13 @@ def get_crimes():
     for msg in consumer:
         crimes.append(msg.value)
     return {"crimes": crimes}
+
+
+@app.post("/auth/google/callback")
+def auth_google_callback(authorization: Optional[str] = Header(None)):
+    if is_validate_google_id_token(authorization):
+        return {"message": "Login successful"}
+    else:
+        raise HTTPException(
+            status_code=HTTP_401_UNAUTHORIZED, detail="Not authenticated"
+        )
