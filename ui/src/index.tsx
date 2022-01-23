@@ -1,18 +1,23 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import "./index.css";
-import App from "./App";
-import { GoogleAuthProvider } from "./hooks/useGoogleAuth";
 import { BrowserRouter } from "react-router-dom";
+import { ChakraProvider } from "@chakra-ui/react";
+
+import App from "./App";
 import reportWebVitals from "./reportWebVitals";
+import { GoogleAuthProvider } from "./hooks/useGoogleAuth";
+
+import "./index.css";
 
 ReactDOM.render(
   <React.StrictMode>
-    <GoogleAuthProvider>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
-    </GoogleAuthProvider>
+    <ChakraProvider>
+      <GoogleAuthProvider>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </GoogleAuthProvider>
+    </ChakraProvider>
   </React.StrictMode>,
   document.getElementById("root")
 );

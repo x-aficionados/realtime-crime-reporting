@@ -8,7 +8,7 @@ WORKDIR /code
 ENV PATH /code/node_modules/.bin:$PATH
 
 # install app dependencies
-COPY package.json yarn.lock postcss.config.js tailwind.config.js tsconfig.json ./
+COPY package.json yarn.lock tsconfig.json ./
 RUN yarn install --silent
 
 # start app
