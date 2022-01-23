@@ -3,12 +3,13 @@ import React from "react";
 import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { Container, Flex } from "@chakra-ui/react";
 
-import { useGoogleAuth } from "./hooks/useGoogleAuth";
 import Home from "./components/Home";
 import Dashboard from "./components/Dashboard";
 import SignIn from "./components/SignIn";
 import { Nav, NavLink } from "./components/Nav";
 import Foot from "./components/Foot";
+import NotFound from "./components/NotFound";
+import { useGoogleAuth } from "./hooks/useGoogleAuth";
 
 function RequireAuth({ children }: { children: JSX.Element }) {
   const { authorized } = useGoogleAuth();
@@ -26,8 +27,6 @@ function RequireAuth({ children }: { children: JSX.Element }) {
 }
 
 function App() {
-  const { authorized } = useGoogleAuth();
-  // TODO: implement protected routes
   return (
     <Flex
       direction="column"
@@ -50,6 +49,7 @@ function App() {
               </RequireAuth>
             }
           />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </Container>
       <Foot />
