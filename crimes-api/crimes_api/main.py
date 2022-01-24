@@ -20,93 +20,93 @@ class Crime(BaseModel):
 
 app = FastAPI()
 
-producer = KafkaProducer(
-    bootstrap_servers="kafka:9092",
-    api_version=(0, 10, 1),
-    value_serializer=lambda v: json.dumps(v).encode("utf-8"),
-    max_block_ms=10000,
-)
-consumer = KafkaConsumer(
-    "crime",
-    bootstrap_servers="kafka:9092",
-    api_version=(0, 10, 1),
-    value_deserializer=lambda m: json.loads(m.decode("utf-8")),
-    consumer_timeout_ms=1000,
-)
 
-try:
-    client = MongoClient('mongo-db', 27017)
-    db = client.crime_info
-    db2 = client.crime_info_test
-    collection_name = db["raw_crime_info"]
-    collection_name_test = db2["raw_crime_info_test"]
-except Exception as e:
-    print("Could not connect to MongoDB: {}".format(e))
+class Kafka():
+    def __init__(self, topic, bootstrap_servers="kafka:9092", consumer_timeout_ms=1000, max_block_ms=10000):
+        self.topic = topic
+        self.producer = KafkaProducer(
+            bootstrap_servers=bootstrap_servers,
+            api_version=(0, 10, 1),
+            value_serializer=lambda v: json.dumps(v).encode("utf-8"),
+            max_block_ms=max_block_ms,
+        )
 
-try:
-    # collection_name = db["raw_crime_info"]
-    url = "http://localhost:8083/connectors"
+        self.consumer = KafkaConsumer(
+            topic,
+            bootstrap_servers="kafka:9092",
+            api_version=(0, 10, 1),
+            value_deserializer=lambda m: json.loads(m.decode("utf-8")),
+            consumer_timeout_ms=consumer_timeout_ms,
+        )
 
-    payload = {"name": "mongo-sink2",
-               "config": {"connector.class":"com.mongodb.kafka.connect.MongoSinkConnector",
-                          "tasks.max":"1",
-                          "topics":"crime",
-                          "connection.uri":"mongodb://mongo-db:27017",
-                          "database":"crime_info_test",
-                          "collection":"raw_crime_info_test",
-                          "key.converter": "org.apache.kafka.connect.storage.StringConverter",
-                          "value.converter": "org.apache.kafka.connect.json.JsonConverter",
-                          "value.converter.schemas.enable": "false"
-                         }
-               }
-    headers = {
-      'Content-Type': 'application/json'
-    }
+    def send_data_to_kafka(self, topic, data):
+        self.producer.send(topic, data)
+        self.producer.flush()
+        return data
 
-    response = requests.request("POST", url, headers=headers, data=payload)
-except Exception as e:
-    print("Could not post request to sink {}".format(e))
+    def consume_data_from_kafka(self):
+        crimes = []
+        for msg in self.consumer:
+            crimes.append(msg.value)
+        return crimes
+
+
+class MongoDB(object):
+    def __init__(self, database_name, collection_name, host="mongo-db", port=27017):
+        try:
+            self.connection = MongoClient(host=host, port=port)
+        except Exception as e:
+            raise Exception(e)
+        self.database = self.connection[database_name]
+        self.collection = self.database[collection_name]
+
+    def create_mongo_sink(self, url, headers, payload, method="POST"):
+        try:
+            requests.request(method, url, headers=headers, data=payload)
+        except Exception as e:
+            print("Could not post request to sink {}".format(e))
+
+    def add_data_to_mongo(self, post):
+        # add/append/new single record
+        post_id = self.collection.insert_one(post).inserted_id
+        return post_id
+
+    def read_data_from_mongo(self):
+        crimes = []
+        cursor = self.collection.find({}, {"_id": 0})
+        for record in cursor:
+            crimes.append(record)
+        return crimes
+
+    def read_single_data_from_mongo(self, params):
+        return self.collection.find_one(params, {"_id": 0})
+
+
+topic = "crime"
+kafka_obj = Kafka(topic)
+mongo_obj = MongoDB(database_name="crime_info", collection_name="raw_crime_info")
+url = "http://connect:8083/connectors"
+
+payload="\n  {\"name\": \"mongo-sink\",\n   \"config\": {\n     \"connector.class\":\"com.mongodb.kafka.connect.MongoSinkConnector\",\n     \"tasks.max\":\"1\",\n     \"topics\":\"crime\",\n     \"connection.uri\":\"mongodb://mongo-db:27017\",\n     \"database\":\"crime_info\",\n     \"collection\":\"raw_crime_info\",\n     \"key.converter\": \"org.apache.kafka.connect.storage.StringConverter\",\n     \"value.converter\": \"org.apache.kafka.connect.json.JsonConverter\",\n     \"value.converter.schemas.enable\": \"false\"\n}}"
+headers = {
+  'Content-Type': 'application/json'
+}
+mongo_obj.create_mongo_sink(url, payload, headers)
 
 
 @app.post("/crimes")
 def report_crime(crime: Crime):
     # status should be later set to open from kafka consumer
-    crime = {**crime.dict(), "timestamp": time.time(), "id": str(uuid.uuid4())}
-    producer.send("crime", crime)
-    producer.flush()
-    crimes = []
-    inserted = []
-    for msg in consumer:
-        crimes.append(msg.value)
-    #     record = msg.value
-    #     crime_id = record['id']
-    #     email_id = record['email_id']
-    #     lat = record['lat']
-    #     long = record['lon']
-    #     type = record['type']
-    #     timestamp = record['timestamp']
-    #     status = "open"
-    #     crimes.append(msg.value)
-    #     try:
-    #         crime_rec = {'crime_id': crime_id, 'email_id': email_id, 'lat': lat,
-    #                      'long': long, 'type': type, 'timestamp': timestamp, 'status': status}
-    #         inserted.append(json.dumps(crime_rec))
-    #         collection_name.insert_one(crime_rec)
-    #     except Exception as e:
-    #         # pass
-    #         print("Could not insert into MongoDB: {}".format(e))
-    return ({"id": crime["id"]}, {"crimes": crimes}, {"inserted": inserted})
+    crime = {**crime.dict(), "timestamp": time.time(), "crime_id": str(uuid.uuid4()), "status": "open"}
+    post_data = kafka_obj.send_data_to_kafka(topic, crime)
+    return post_data
 
 
 @app.get("/crimes")
 def get_crimes():
-    # crimes = []
-    col = db["raw_crime_info"]
-    x = col.find({"_id": 0})
-    return x
+    return mongo_obj.read_data_from_mongo()
 
 
 @app.get("/crimes/{crime_id}")
-def get_crime(crime_id):
-    # col = db["raw_crime_info"]
-    return (collection_name.find_one({"crime_id": crime_id}, {"_id": 0}), db.list_collection_names())
+def get_crimes(crime_id):
+    return mongo_obj.read_single_data_from_mongo({"crime_id": crime_id})
