@@ -5,10 +5,14 @@ import json
 import uuid
 
 from kafka import KafkaProducer, KafkaConsumer
-from fastapi import FastAPI
+from fastapi import FastAPI, Header, HTTPException
+from starlette.status import HTTP_401_UNAUTHORIZED
 from pydantic import BaseModel
 from pymongo import MongoClient
 import requests
+
+from .dependency import is_validate_google_id_token
+from .constants import CLIENT_ID
 
 
 class Crime(BaseModel):
@@ -114,3 +118,13 @@ def get_crimes():
 @app.get("/crimes/{crime_id}")
 def get_crimes(crime_id):
     return mongo_obj.read_single_data_from_mongo({"_id": crime_id})
+
+
+@app.post("/auth/google/callback")
+def auth_google_callback(authorization: Optional[str] = Header(None)):
+    if is_validate_google_id_token(authorization):
+        return {"message": "Login successful"}
+    else:
+        raise HTTPException(
+            status_code=HTTP_401_UNAUTHORIZED, detail="Not authenticated"
+        )

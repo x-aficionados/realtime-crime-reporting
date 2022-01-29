@@ -1,2 +1,4 @@
 # pyenv
 .python-version
+# env vars
+.env
