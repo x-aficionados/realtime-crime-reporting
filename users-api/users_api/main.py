@@ -54,7 +54,7 @@ mongo_obj = MongoDB(database_name="user_info", collection_name="all_user_info")
 def add_edit_user(user: User, email_id):
     user = {**user.dict(), "timestamp": time.time()}
     # if user exists, update the existing
-    if(mongo_obj.read_single_data_from_mongo({"email_id": email_id})):
+    if(mongo_obj.read_single_data_from_mongo({"_id": email_id})):
         str = "Updated existing user with email_id: " + email_id
         mongo_obj.update_data_in_mongodb({"_id": email_id}, "$set", user)
     else:
