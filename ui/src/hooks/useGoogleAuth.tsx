@@ -21,6 +21,7 @@ export const GoogleAuthProvider = ({ children }: { children: any }) => {
       email: response.profileObj.email,
       first_name: response.profileObj.givenName,
       last_name: response.profileObj.familyName,
+      auth_type: "google",
     };
 
     const res = await validateTokenAndObtainSession({ data, idToken });
@@ -49,7 +50,6 @@ export const GoogleAuthProvider = ({ children }: { children: any }) => {
     onSuccess: onLoginSuccess,
     onFailure: onLoginFailure,
     clientId,
-    isSignedIn: true,
   });
   const { signOut } = useGoogleLogout({
     onFailure: onLogoutFailure,

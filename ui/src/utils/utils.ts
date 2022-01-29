@@ -1,5 +1,5 @@
 const redirectUri =
-  process.env.REACT_APP_GAUTH_REDIRECT_URI || "invalid_redirect_uri";
+  process.env.REACT_APP_GAUTH_CALLBACK_URI || "invalid_callback_uri";
 
 export const validateTokenAndObtainSession = async ({
   data,

@@ -1,16 +1,12 @@
-from typing import Optional
-
 import time
 import json
 import uuid
 
 from kafka import KafkaProducer, KafkaConsumer
-from fastapi import FastAPI, Header, HTTPException
-from starlette.status import HTTP_401_UNAUTHORIZED
+from fastapi import FastAPI, Depends
 from pydantic import BaseModel
 
-from .dependency import is_validate_google_id_token
-from .constants import CLIENT_ID
+from .dependency import JWTBearer
 
 
 class Crime(BaseModel):
@@ -37,8 +33,8 @@ consumer = KafkaConsumer(
 )
 
 
-@app.post("/crimes")
-def report_crime(crime: Crime):
+@app.post("/crimes", dependencies=[Depends(JWTBearer())])
+async def report_crime(crime: Crime):
     # status should be later set to open from kafka consumer
     crime = {**crime.dict(), "timestamp": time.time(), "id": str(uuid.uuid4())}
     producer.send("crime", crime)
@@ -46,19 +42,9 @@ def report_crime(crime: Crime):
     return {"id": crime["id"]}
 
 
-@app.get("/crimes")
-def get_crimes():
+@app.get("/crimes", dependencies=[Depends(JWTBearer())])
+async def get_crimes():
     crimes = []
     for msg in consumer:
         crimes.append(msg.value)
     return {"crimes": crimes}
-
-
-@app.post("/auth/google/callback")
-def auth_google_callback(authorization: Optional[str] = Header(None)):
-    if is_validate_google_id_token(authorization):
-        return {"message": "Login successful"}
-    else:
-        raise HTTPException(
-            status_code=HTTP_401_UNAUTHORIZED, detail="Not authenticated"
-        )
