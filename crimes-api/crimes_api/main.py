@@ -68,8 +68,7 @@ class MongoDB(object):
 
     def add_data_to_mongo(self, post):
         # add/append/new single record
-        post_id = self.collection.insert_one(post).inserted_id
-        return post_id
+        self.collection.insert_one(post)
 
     def read_data_from_mongo(self):
         crimes = []
@@ -98,7 +97,12 @@ mongo_obj.create_mongo_sink(url, payload, headers)
 def report_crime(crime: Crime):
     # status should be later set to open from kafka consumer
     crime = {**crime.dict(), "timestamp": time.time(), "crime_id": str(uuid.uuid4()), "status": "open"}
-    post_data = kafka_obj.send_data_to_kafka(topic, crime)
+    crime["_id"] = crime["crime_id"]
+    post_data = {}
+    if(not mongo_obj.read_single_data_from_mongo({"_id": crime["crime_id"]})):
+        post_data = kafka_obj.send_data_to_kafka(topic, crime)
+    else:
+        post_pata = {crime["crime_id"]: "Key already exists"}
     return post_data
 
 
@@ -109,4 +113,4 @@ def get_crimes():
 
 @app.get("/crimes/{crime_id}")
 def get_crimes(crime_id):
-    return mongo_obj.read_single_data_from_mongo({"crime_id": crime_id})
+    return mongo_obj.read_single_data_from_mongo({"_id": crime_id})
