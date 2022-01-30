@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "api"
+name = "users-api"
 version = "0.1.0"
 description = ""
 authors = ["harsh8398 <pharsh58@gmail.com>", "ShreyaTalati <talatishreya2@gmail.com"]
@@ -9,10 +9,9 @@ python = "^3.9"
 kafka-python = "^2.0.2"
 fastapi = "^0.71.0"
 uvicorn = {extras = ["standard"], version = "^0.17.0"}
-PyJWT = "^2.3.0"
-cryptography = "^36.0.1"
+pymongo = "^4.0.1"
 requests = "^2.27.1"
-motor = "^2.5.1"
+python-bsonjs = "^0.3.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
