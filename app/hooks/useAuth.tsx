@@ -1,36 +1,32 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, SetStateAction } from "react";
 import * as WebBrowser from "expo-web-browser";
 import * as Google from "expo-auth-session/providers/google";
 import { Prompt } from "expo-auth-session";
 
+import {
+  validateLogIn,
+  validateOAuthCallback,
+  validateSignUp,
+} from "../util/util";
+
 WebBrowser.maybeCompleteAuthSession();
-
-const redirectUri = "http://localhost/auth/v1/login";
-
-const validateTokenAndObtainSession = async ({
-  data,
-  idToken,
-}: {
-  data: any;
-  idToken: string;
-}) => {
-  const headers = {
-    Authorization: idToken,
-    "Content-Type": "application/json",
-  };
-
-  return await fetch(redirectUri, {
-    method: "POST",
-    body: JSON.stringify(data),
-    headers,
-  });
-};
 
 const AuthContext = React.createContext({
   authenticated: false,
-  signIn: () => {},
-  signOut: () => {},
-  signUp: () => {},
+  signIn: async (
+    data: { email: string; password: string },
+    setServerError: (message: string) => void
+  ) => {},
+  signOut: async () => {},
+  signUp: async (
+    data: {
+      email: string;
+      password: string;
+      first_name: string;
+      last_name: string;
+    },
+    setServerError: (message: string) => void
+  ) => {},
   signInWithGoogle: () => {},
 });
 
@@ -48,33 +44,39 @@ export const AuthProvider = ({ children }: { children: any }) => {
   useEffect(() => {
     if (response?.type === "success") {
       const idToken = response.params.id_token;
-
-      const googleAuthCallback = async () => {
-        const res = await validateTokenAndObtainSession({
-          data: { auth_type: "google" },
-          idToken,
-        });
-        if (!res.ok) {
-          const message = `An error has occured: ${res.status}`;
-          console.error(message);
-          return;
-        }
-        const result = await res.json();
-        console.log(result);
-        setAuthenticated(true);
-      };
-      googleAuthCallback();
+      validateOAuthCallback({ auth_type: "google" }, idToken, () =>
+        setAuthenticated(true)
+      );
     }
   }, [response]);
 
   const signInWithGoogle = async () => {
     await promptAsync();
   };
-  const signIn = async () => {
-    setAuthenticated(true);
+  const signIn = async (
+    data: { email: string; password: string },
+    setServerError: (message: string) => void
+  ) => {
+    validateLogIn(
+      data,
+      () => setAuthenticated(true),
+      (message: string) => setServerError(message)
+    );
   };
-  const signUp = async () => {
-    setAuthenticated(true);
+  const signUp = async (
+    data: {
+      email: string;
+      password: string;
+      first_name: string;
+      last_name: string;
+    },
+    setServerError: (message: string) => void
+  ) => {
+    validateSignUp(
+      data,
+      () => setAuthenticated(true),
+      (message: string) => setServerError(message)
+    );
   };
   const signOut = async () => {
     setAuthenticated(false);

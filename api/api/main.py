@@ -135,7 +135,7 @@ async def report_crime(crime: Crime, user_id: str = Depends(JWTBearer())):
         "status": "open",
         "user_id": user_id,
     }
-    crime["_id"] = crime["crime_id"] = str(uuid.uuid4())
+    crime["_id"] = crime["crime_id"] = uuid.uuid4().hex
 
     app.kafka_client.send_data_to_kafka(crime)
 
