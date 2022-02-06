@@ -3,12 +3,13 @@ import jwt
 from typing import Optional
 from datetime import datetime, timedelta
 from fastapi import FastAPI, Header, Response, Body, Cookie, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from starlette.status import HTTP_401_UNAUTHORIZED, HTTP_400_BAD_REQUEST
 from motor.motor_asyncio import AsyncIOMotorClient
 from google.oauth2 import id_token
 from google.auth.transport import requests
 
-from .models import User
+from .models import Auth
 from .constants import (
     GAUTH_CLIENT_ID,
     JWT_REFRESH_EXP_DELTA_SECONDS,
@@ -22,6 +23,19 @@ from .constants import (
 )
 
 app = FastAPI()
+
+origins = [
+    "http://localhost",
+    "http://localhost:19006",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.on_event("startup")
@@ -37,29 +51,34 @@ async def shutdown_db_client():
 
 @app.post("/login")
 async def auth_google_callback(
-    response: Response, authorization: str = Header(None), user: User = Body(...)
+    response: Response, authorization: str = Header(None), auth: Auth = Body(...)
 ):
-    print(user)
     try:
-        if user.auth_type != "google":
+        if auth.auth_type != "google":
             raise HTTPException(
                 status_code=HTTP_400_BAD_REQUEST, detail="Invalid auth type."
             )
         idinfo = id_token.verify_oauth2_token(
-            authorization, requests.Request(), GAUTH_CLIENT_ID, clock_skew_in_seconds=10
+            authorization, requests.Request(), GAUTH_CLIENT_ID, clock_skew_in_seconds=20
         )
 
         # ID token is valid. Get the user's Google Account ID from the decoded token.
         user_id = idinfo["sub"]
+        user_data = {
+            "email": idinfo["email"],
+            "first_name": idinfo["given_name"],
+            "last_name": idinfo["family_name"],
+            "auth_type": auth.auth_type,
+        }
 
         # Check if user exists in database
         user_in_db = await app.mongodb.users.find_one(user_id)
         if user_in_db is None:
             # Create new user
-            await app.mongodb.users.insert_one({**user.dict(), "_id": user_id})
+            await app.mongodb.users.insert_one({**user_data, "_id": user_id})
         else:
             # Update user
-            await app.mongodb.users.update_one({"_id": user_id}, {"$set": user.dict()})
+            await app.mongodb.users.update_one({"_id": user_id}, {"$set": user_data})
 
         payload = {
             "user_id": user_id,
