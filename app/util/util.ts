@@ -1,6 +1,7 @@
 const redirectUri = "http://localhost/auth/v1/oauth/callback";
 const logInUri = "http://localhost/auth/v1/login";
 const signUpUri = "http://localhost/auth/v1/signup";
+const reportCrimeUri = "http://localhost/auth/v1/crimes";
 
 export const validateOAuthCallback = async (
   data: {
@@ -85,6 +86,44 @@ export const validateSignUp = async (
   };
   try {
     const res = await fetch(signUpUri, {
+      method: "POST",
+      body: JSON.stringify(data),
+      headers,
+    });
+    if (!res.ok) {
+      const message = `An error has occured: ${res.status}`;
+      onFailure(message);
+      return;
+    }
+    const result = await res.json();
+    onSuccess(result);
+  } catch (e) {
+    console.error(e);
+    onFailure("Failed to fetch");
+    return;
+  }
+};
+
+export const validateReportCrime = async (
+  data: {
+    crime_type: string;
+    lat: number;
+    long: number;
+    description: string;
+    city: string;
+    state: string;
+    country: string;
+    road: string;
+    pincode: string;
+  },
+  onSuccess: CallableFunction = (result: object) => {},
+  onFailure: CallableFunction = (message: string) => {}
+) => {
+  const headers = {
+    "Content-Type": "application/json",
+  };
+  try {
+    const res = await fetch(reportCrimeUri, {
       method: "POST",
       body: JSON.stringify(data),
       headers,
