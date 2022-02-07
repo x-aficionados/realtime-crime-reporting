@@ -4,6 +4,8 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 
 import Feed from "./tabs/Feed";
 import Profile from "./tabs/Profile";
+import ReportCrime from "./tabs/ReportCrime";
+import { icon } from "@fortawesome/fontawesome-svg-core";
 
 const Tab = createBottomTabNavigator();
 
@@ -16,6 +18,8 @@ export default function Root() {
 
           if (route.name === "Feed") {
             iconName = focused ? "profile" : "bars";
+          } else if(route.name === "Report Crime") {
+            iconName = focused ? "pluscircleo" : "pluscircle";
           } else if (route.name === "Profile") {
             iconName = focused ? "smile-circle" : "smileo";
           }
@@ -29,6 +33,7 @@ export default function Root() {
       })}
     >
       <Tab.Screen name="Feed" component={Feed} />
+      <Tab.Screen name="Report Crime" component={ReportCrime}></Tab.Screen>
       <Tab.Screen name="Profile" component={Profile} />
     </Tab.Navigator>
   );
