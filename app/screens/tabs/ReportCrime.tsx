@@ -61,14 +61,20 @@ function ReportCrime() {
           setErrors({ ...errors,
             crime_type: 'Crime Type is required'
           });
+          console.log("In if1");
+          console.log(crimeData.crime_type.length);
           return false;
         }
         if (locationData.lat === -200 || locationData.long === -200) {
           setErrors({ ...errors,
             location: 'Couldn\'t obtain location'
           });
+          console.log("In if2");
+          console.log(locationData.lat);
+          console.log(locationData.long);
           return false;
         }
+        console.log("return true");
         return true;
     };
 
@@ -143,11 +149,28 @@ function ReportCrime() {
                 </Input>
               </HStack>
             </HStack>
-            <Stack space={2.5} alignSelf="center" px="4" safeArea mt="4" w={{
+            <Stack space={3} alignSelf="center" px="4" safeArea mt="4" w={{
                 base: "100%",
                 md: "25%"
                 }}>
             </Stack>
+            {serverError && (
+            <Alert w="100%" status="error" mb="2">
+                <HStack flexShrink={1} space={2} justifyContent="space-between">
+                  <HStack space={2} flexShrink={1}>
+                    <Alert.Icon mt="1" />
+                    <Text fontSize="md" color="coolGray.800">
+                      {serverError}
+                    </Text>
+                  </HStack>
+                  <IconButton
+                    variant="unstyled"
+                    icon={<CloseIcon size="3" color="coolGray.600" />}
+                    onPress={() => setServerError("")}
+                  />
+                </HStack>
+            </Alert>
+          )}
 
             <Box w="90%" maxWidth="300px">
               <FormControl w="3/4" maxW="300" isRequired isInvalid={!!errors.crime_type} b="5">
@@ -232,12 +255,12 @@ function ReportCrime() {
                 Report
               </Button>
               {crimeReported &&
-                <Alert w="90%" maxW="400" status="success" colorScheme="success">
+                <Alert w="90%" maxW="400" status="success" colorScheme="success" mt="2">
                     <HStack flexShrink={1} space={2} alignItems="center" justifyContent="space-between">
                       <HStack flexShrink={1} space={2} alignItems="center">
                         <Alert.Icon />
                         <Text fontSize="md" fontWeight="medium" color="coolGray.800">
-                          Crime submitted successfully!
+                          Submitted successfully!
                         </Text>
                       </HStack>
                       <IconButton variant="unstyled" icon={<CloseIcon size="3" color="coolGray.600" />} />
