@@ -69,7 +69,7 @@ export default function Login({
           Sign in to continue!
         </Heading>
         <VStack space={3} mt="5">
-          {serverError && (
+          {serverError ? (
             <Alert w="100%" status="error">
               <VStack space={2} flexShrink={1} w="100%">
                 <HStack flexShrink={1} space={2} justifyContent="space-between">
@@ -87,7 +87,7 @@ export default function Login({
                 </HStack>
               </VStack>
             </Alert>
-          )}
+          ) : null}
           <FormControl isRequired isInvalid={!!errors.email}>
             <FormControl.Label>Email ID</FormControl.Label>
             <Input

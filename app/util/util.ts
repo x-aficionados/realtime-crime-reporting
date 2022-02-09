@@ -1,6 +1,10 @@
-const redirectUri = "http://localhost/auth/v1/oauth/callback";
-const logInUri = "http://localhost/auth/v1/login";
-const signUpUri = "http://localhost/auth/v1/signup";
+import Constants from "expo-constants";
+import { encode } from "base-64";
+
+const baseUrl = Constants.manifest.extra.apiUrl;
+const redirectUri = `${baseUrl}/auth/v1/oauth/callback`;
+const logInUri = `${baseUrl}/auth/v1/login`;
+const signUpUri = `${baseUrl}/auth/v1/signup`;
 
 export const validateOAuthCallback = async (
   data: {
@@ -47,7 +51,7 @@ export const validateLogIn = async (
   onFailure: CallableFunction = () => {}
 ) => {
   const headers = {
-    Authorization: `Basic ${window.btoa(email + ":" + password)}`,
+    Authorization: `Basic ${encode(email + ":" + password)}`,
     "Content-Type": "application/json",
   };
   try {

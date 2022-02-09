@@ -1,4 +1,5 @@
 import React, { useState, useEffect, SetStateAction } from "react";
+import Constants from "expo-constants";
 import * as WebBrowser from "expo-web-browser";
 import * as Google from "expo-auth-session/providers/google";
 import { Prompt } from "expo-auth-session";
@@ -35,7 +36,7 @@ export const AuthProvider = ({ children }: { children: any }) => {
     expoClientId: "GOOGLE_GUID.apps.googleusercontent.com",
     iosClientId: "GOOGLE_GUID.apps.googleusercontent.com",
     androidClientId: "GOOGLE_GUID.apps.googleusercontent.com",
-    webClientId: "GOOGLE_GUID.apps.googleusercontent.com",
+    webClientId: Constants.manifest.extra.webClientId,
     scopes: ["email", "profile"],
     prompt: Prompt.Consent,
   });

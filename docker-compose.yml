@@ -1,5 +1,21 @@
 version: '3'
 services:
+  ngrok:
+    image: shkoliar/ngrok:1.1.0
+    ports:
+      - 4551:4551
+    links:
+      - webserver
+    environment:
+      - DOMAIN=webserver
+      - PORT=80
+      - BIND_TLS=false
+      - REGION=ap
+      - DEBUG=true
+    networks:
+      - crime-network
+    depends_on:
+      - webserver
   webserver:
     image: nginx:alpine
     container_name: webserver
@@ -13,6 +29,7 @@ services:
       - crime-network
     depends_on:
       - api
+      - auth
       - ui
 
   zookeeper:
