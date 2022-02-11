@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   Text,
   StatusBar,
@@ -20,13 +20,10 @@ import {
   NativeBaseProvider
 } from "native-base";
 
+import * as Permissions from 'expo-permissions';
+import * as Location from 'expo-location';
+
 import { AntDesign } from '@expo/vector-icons';
-//import GetLocation from 'react-native-get-location'
-// import Geolocation from 'react-native-geolocation-service';
-import NodeGeocoder from 'node-geocoder';
-// import OpenGeoCoder from "node-open-geocoder";
-// import reverseGeoCoding from "reverse-geocoding";
-// import fetch from "node-fetch";
 import { useReportCrime } from "../../hooks/useReportCrime";
 
 function ReportCrime() {
@@ -49,13 +46,9 @@ function ReportCrime() {
       country: "",
       pincode: "",
       lat: -200, // lat range from -90 to 90 and long -180 to 180
-      long: -200,
+      lon: -200,
     });
-    //const fetch = unfetch.bind()
-    let options = {
-        provider: 'openstreetmap'
-      };
-    let geoCoder = NodeGeocoder(options);
+
     const validate = () => {
         if (crimeData.crime_type.length === 0) {
           setErrors({ ...errors,
@@ -65,71 +58,60 @@ function ReportCrime() {
           console.log(crimeData.crime_type.length);
           return false;
         }
-        if (locationData.lat === -200 || locationData.long === -200) {
+        if (locationData.lat === -200 || locationData.lon === -200) {
           setErrors({ ...errors,
             location: 'Couldn\'t obtain location'
           });
           console.log("In if2");
           console.log(locationData.lat);
-          console.log(locationData.long);
+          console.log(locationData.lon);
           return false;
         }
         console.log("return true");
         return true;
     };
 
-    // const onSubmit = () => {
-    //   validate() ? console.log({crimeData}) : console.log('Validation Failed');
-    // };
 
-    // const getLocationName = async(lat, long) => {
-    //   let requestOptions = {
-    //       method: 'GET',
-    //       redirect: 'follow'
-    //   };
-    //   let url = `https://nominatim.openstreetmap.org/reverse?format=geojson&lat=${lat}&lon=${long}`;
-    //   fetch(url, requestOptions)
-    //   .then(response => {
-	//       console.log(response.text());
-    //       //console.log((response.text()).features[0])
-    //       // setLocation({display_name: response.features[0].properties.display_name,
-    //       //              road: response.features[0].properties.address.road,
-    //       //              city: response.features[0].properties.address.city,
-    //       //              state: response.features[0].properties.address.state,
-    //       //              country: response.features[0].properties.address.country,
-    //       //              pincode: response.features[0].properties.address.postcode,
-    //       //              lat: response.features[2].geometry.coordinates[0],
-    //       //              long: response.features[2].geometry.coordinates[1],
-    //       //              complete_adress: response.features[0].properties.address});
-    //   })
-    //   .then(result => {console.log(result)})
-    //   .catch(err => {
-    //   	console.error(err);
-    //   });
-    //   console.log(locationData);
-    //  // return locationData.display_name;
-    // }
-    const successHandler = (position) => {
-      console.log(position);
-      console.log("Latitude is :", position.coords.latitude);
-      console.log("Longitude is :", position.coords.longitude);
-      // GET location name (remaining)
-      //await getLocationName(position.coords.latitude, position.coords.longitude);
+    const getLocationName = async(lat, lon) => {
+      const requestOptions = {
+          method: 'GET',
+          redirect: 'follow'
+      };
+      const url = `https://nominatim.openstreetmap.org/reverse?format=geojson&lat=${lat}&lon=${lon}`;
+      let response = await fetch(url, requestOptions);
+      console.log(response);
+      response = await response.json();
+      return response;
     }
 
-    const errorHandler = (error) => {
-      console.error("Error Code = " + error.code + " - " + error.message);
-    }
-    const getLocation = () => {
-        console.log("In func");
-        navigator.geolocation.getCurrentPosition(
-            successHandler,
-            errorHandler,
-            {maximumAge: 10000, timeout: 1000, enableHighAccuracy:true}
-          );
-        console.log(locationData);
-        return locationData.display_name;
-    };
+    useEffect(() => {
+      const getLocation = async () => {
+        const { status } = Permissions.askAsync(Permissions.LOCATION_FOREGROUND);
+        if (status !== 'granted') {
+          console.log("Permission to access location was denied");
+          setErrors({...errors, location: "Permission to access location was denied"});
+        }
+        const location = await Location.getCurrentPositionAsync({});
+        setLocation({...locationData, lat: location.coords.latitude });
+        setLocation({...locationData, lon: location.coords.longitude });
+        console.log(location);
+        const reverseLocation = await getLocationName(
+          location.coords.latitude,
+          location.coords.longitude
+        );
+          console.log("Returning from getLocation name");
+          console.log(reverseLocation);
+          setLocation({display_name: reverseLocation.features[0].properties.display_name,
+            road: reverseLocation.features[0].properties.address.road,
+            city: reverseLocation.features[0].properties.address.city,
+            state: reverseLocation.features[0].properties.address.state,
+            country: reverseLocation.features[0].properties.address.country,
+            pincode: reverseLocation.features[0].properties.address.postcode,
+            lat: reverseLocation.features[0].geometry.coordinates[0],
+            lon: reverseLocation.features[0].geometry.coordinates[1]});
+      }
+      getLocation();
+    }, []);
 
     return (// eslint-disable-next-line react-native/no-inline-styles
         <Box alignItems="center">
@@ -145,7 +127,8 @@ function ReportCrime() {
                     size={5}
                     ml="2"
                     />}
-                  value={getLocation()}>
+                  value={locationData.display_name}
+                >
                 </Input>
               </HStack>
             </HStack>
@@ -238,7 +221,7 @@ function ReportCrime() {
                         {
                           crime_type: crimeData.crime_type,
                           lat: locationData.lat,
-                          long: locationData.long,
+                          lon: locationData.long,
                           description: crimeData.description,
                           city: locationData.city,
                           state: locationData.state,
