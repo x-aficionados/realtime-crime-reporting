@@ -117,53 +117,53 @@ function ReportCrime() {
         <Box alignItems="center">
             <StatusBar  barStyle="light-content" />
             <Box safeAreaTop  />
-            <HStack px="1" py="3" justifyContent="space-between" alignItems="center" w="100%" maxW="350">
+            <HStack px={1} py={3} justifyContent="space-between" alignItems="center" w="100%" maxW={350}>
               <HStack alignItems="center">
                 <Input
                   variant="underlined"
-                  mb="5"
+                  mb={5}
                   InputLeftElement={
                     <Icon as={<AntDesign name="enviroment" />}
                     size={5}
-                    ml="2"
+                    ml={2}
                     />}
                   value={locationData.display_name}
                 >
                 </Input>
               </HStack>
             </HStack>
-            <Stack space={3} alignSelf="center" px="4" safeArea mt="4" w={{
+            <Stack space={3} alignSelf="center" px={4} safeArea mt={4} w={{
                 base: "100%",
                 md: "25%"
                 }}>
             </Stack>
             {serverError && (
-            <Alert w="100%" status="error" mb="2">
+            <Alert w="100%" status="error" mb={2}>
                 <HStack flexShrink={1} space={2} justifyContent="space-between">
                   <HStack space={2} flexShrink={1}>
-                    <Alert.Icon mt="1" />
+                    <Alert.Icon mt={1} />
                     <Text fontSize="md" color="coolGray.800">
                       {serverError}
                     </Text>
                   </HStack>
                   <IconButton
                     variant="unstyled"
-                    icon={<CloseIcon size="3" color="coolGray.600" />}
+                    icon={<CloseIcon size={3} color="coolGray.600" />}
                     onPress={() => setServerError("")}
                   />
                 </HStack>
             </Alert>
           )}
 
-            <Box w="90%" maxWidth="300px">
-              <FormControl w="3/4" maxW="300" isRequired isInvalid={!!errors.crime_type} b="5">
+            <Box w="90%" maxWidth={300}>
+              <FormControl w="3/4" maxW={300} isRequired isInvalid={!!errors.crime_type} b={5}>
                 <FormControl.Label
                   _text={{bold: true}}
                 >
                 Crime Type
                 </FormControl.Label>
                 <Select
-                  selectedValue={crimeData.crime_type} minWidth="200"
+                  selectedValue={crimeData.crime_type} minWidth={200}
                   accessibilityLabel="Choose Service" placeholder="Choose Service"
                   onValueChange={itemValue => {
                     setCrimeData({ ...crimeData, crime_type: itemValue});
@@ -174,7 +174,7 @@ function ReportCrime() {
                     bg: "cyan.600",
                     endIcon: <CheckIcon size={4} />
                   }}
-                  mt="1"
+                  mt={1}
                   >
                     <Select.Item label="Robbery" value="roberry" />
                     <Select.Item label="Harassment" value="harassment" />
@@ -192,20 +192,20 @@ function ReportCrime() {
                   Please make a selection!
                 </FormControl.ErrorMessage>}
               </FormControl>
-              <FormControl w="75%" minW="200" maxW="200">
+              <FormControl w="75%" minW={200} maxW={200}>
                 <FormControl.Label
                   _text=
                   {{
                     bold: true
                   }}
-                  mt="5"
+                  mt={5}
                 >
                   Crime Description
                 </FormControl.Label>
                 <TextArea
                   h={20}
                   placeholder="Describe crime in more detail"
-                  w="75%" minW="200" maxW="200"
+                  w="75%" minW={200} maxW={200}
                   onChangeText=
                   {
                     value => setCrimeData({ ...crimeData, description: value})
@@ -233,12 +233,12 @@ function ReportCrime() {
                       )
                     : null
                 }
-                mt="5" colorScheme="cyan"
+                mt={5} colorScheme="cyan"
               >
                 Report
               </Button>
               {crimeReported &&
-                <Alert w="90%" maxW="400" status="success" colorScheme="success" mt="2">
+                <Alert w="90%" maxW={400} status="success" colorScheme="success" mt={2}>
                     <HStack flexShrink={1} space={2} alignItems="center" justifyContent="space-between">
                       <HStack flexShrink={1} space={2} alignItems="center">
                         <Alert.Icon />
@@ -246,7 +246,7 @@ function ReportCrime() {
                           Submitted successfully!
                         </Text>
                       </HStack>
-                      <IconButton variant="unstyled" icon={<CloseIcon size="3" color="coolGray.600" />} />
+                      <IconButton variant="unstyled" icon={<CloseIcon size={3} color="coolGray.600" />} />
                     </HStack>
                 </Alert>}
             </Box>
@@ -256,7 +256,7 @@ function ReportCrime() {
 export default () => {
     return (
       <NativeBaseProvider>
-        <Center flex={1} px="3">
+        <Center flex={1} px={3}>
             <ReportCrime />
         </Center>
       </NativeBaseProvider>
