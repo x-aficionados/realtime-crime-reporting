@@ -2,6 +2,7 @@ version: '3'
 services:
   ngrok:
     image: shkoliar/ngrok:1.1.0
+    container_name: ngrok
     ports:
       - 4551:4551
     links:

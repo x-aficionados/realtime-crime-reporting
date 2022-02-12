@@ -33,7 +33,7 @@ const AuthContext = React.createContext({
 
 export const AuthProvider = ({ children }: { children: any }) => {
   const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
-    expoClientId: "GOOGLE_GUID.apps.googleusercontent.com",
+    expoClientId: Constants.manifest.extra.webClientId,
     iosClientId: "GOOGLE_GUID.apps.googleusercontent.com",
     androidClientId: "GOOGLE_GUID.apps.googleusercontent.com",
     webClientId: Constants.manifest.extra.webClientId,

@@ -5,7 +5,7 @@ import { useAuth } from "../../hooks/useAuth";
 export default function Profile() {
   const { signOut } = useAuth();
   return (
-    <Box alignItems="center">
+    <Box alignItems="center" safeArea>
       <Text>Profile</Text>
       <Button onPress={() => signOut()}>Logout</Button>
     </Box>
