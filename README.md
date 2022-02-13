@@ -42,3 +42,7 @@ Design Document: https://www.notion.so/harsh8398/Interactive-Map-for-Crime-Repor
 2. Copy [app/.env.example](./app/.env.example) file to `app/.env` file.
 3. Paste the ngrok provided public URL and add it to `app/.env` file created in previous step.
 4. Also, provide values for other env variables in `app/.env`
+5. `cd` into `app` directory and start the app with following command.
+   ```shell
+   yarn start
+   ```

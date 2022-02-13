@@ -1,10 +1,13 @@
-import React, { useState, useEffect, SetStateAction } from "react";
+import React, { useState, useEffect } from "react";
 import Constants from "expo-constants";
 import * as WebBrowser from "expo-web-browser";
 import * as Google from "expo-auth-session/providers/google";
 import { Prompt } from "expo-auth-session";
 
 import {
+  accessTokenManager,
+  isTokenExpired,
+  refreshToken,
   validateLogIn,
   validateOAuthCallback,
   validateSignUp,
@@ -45,22 +48,55 @@ export const AuthProvider = ({ children }: { children: any }) => {
   useEffect(() => {
     if (response?.type === "success") {
       const idToken = response.params.id_token;
-      validateOAuthCallback({ auth_type: "google" }, idToken, () =>
-        setAuthenticated(true)
+      validateOAuthCallback(
+        { auth_type: "google" },
+        idToken,
+        ({ access_token: accessToken }: { access_token: string }) => {
+          setAuthenticated(true);
+          accessTokenManager.set(accessToken);
+        }
       );
     }
   }, [response]);
 
+  useEffect(() => {
+    const validateAndRefreshToken = async () => {
+      // check if token is expired and refresh it on app start or reload
+      const accessToken = await accessTokenManager.get();
+      if (accessToken) {
+        if (isTokenExpired(accessToken)) {
+          refreshToken(
+            (accessToken: string) => {
+              setAuthenticated(true);
+              accessTokenManager.set(accessToken);
+            },
+            () => {
+              setAuthenticated(false);
+              accessTokenManager.remove();
+            }
+          );
+        } else {
+          setAuthenticated(true);
+        }
+      }
+    };
+    validateAndRefreshToken();
+  }, []);
+
   const signInWithGoogle = async () => {
     await promptAsync();
   };
+
   const signIn = async (
     data: { email: string; password: string },
     setServerError: (message: string) => void
   ) => {
     validateLogIn(
       data,
-      () => setAuthenticated(true),
+      ({ access_token: accessToken }: { access_token: string }) => {
+        setAuthenticated(true);
+        accessTokenManager.set(accessToken);
+      },
       (message: string) => setServerError(message)
     );
   };
@@ -75,12 +111,16 @@ export const AuthProvider = ({ children }: { children: any }) => {
   ) => {
     validateSignUp(
       data,
-      () => setAuthenticated(true),
+      ({ access_token: accessToken }: { access_token: string }) => {
+        setAuthenticated(true);
+        accessTokenManager.set(accessToken);
+      },
       (message: string) => setServerError(message)
     );
   };
   const signOut = async () => {
     setAuthenticated(false);
+    accessTokenManager.remove();
   };
 
   return (
