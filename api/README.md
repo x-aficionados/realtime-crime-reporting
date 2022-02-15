@@ -1,6 +1,6 @@
 ## Getting JWT key for verification
 
-1. Copy the public key generated from step-2 mentioned in README of `auth` service to `api/api` directory
+1. Copy the public key generated from step-2 mentioned in auth service [README](../auth/README.md) to `api/api` directory
 
 ## Credits
 

@@ -1,5 +1,11 @@
 ## Generating Assymmetric Key Pairs
 
+### Pre-requisites
+
+- [OpenSSL](https://www.openssl.org/source/)
+
+### Steps
+
 1. Generate JWT private key
 ```
 openssl genrsa -out jwt-key 4096
@@ -20,4 +26,4 @@ openssl genrsa -out jwt-refresh-key 4096
 openssl rsa -in jwt-refresh-key -pubout > jwt-refresh-key.pub
 ```
 
-5. Put them under `auth/auth` directory.
+1. Put them under [auth/auth](./auth/) directory.

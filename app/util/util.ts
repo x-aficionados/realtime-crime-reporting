@@ -1,7 +1,12 @@
-const redirectUri = "http://localhost/auth/v1/oauth/callback";
-const logInUri = "http://localhost/auth/v1/login";
-const signUpUri = "http://localhost/auth/v1/signup";
-const reportCrimeUri = "http://localhost/auth/v1/crimes";
+import Constants from "expo-constants";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { encode, decode } from "base-64";
+
+const baseUrl = Constants.manifest.extra.apiUrl;
+const redirectUri = `${baseUrl}/auth/v1/oauth/callback`;
+const logInUri = `${baseUrl}/auth/v1/login`;
+const signUpUri = `${baseUrl}/auth/v1/signup`;
+const refreshUri = `${baseUrl}/auth/v1/refresh_token`;
 
 export const validateOAuthCallback = async (
   data: {
@@ -48,7 +53,7 @@ export const validateLogIn = async (
   onFailure: CallableFunction = () => {}
 ) => {
   const headers = {
-    Authorization: `Basic ${window.btoa(email + ":" + password)}`,
+    Authorization: `Basic ${encode(email + ":" + password)}`,
     "Content-Type": "application/json",
   };
   try {
@@ -104,28 +109,86 @@ export const validateSignUp = async (
   }
 };
 
-export const validateReportCrime = async (
-  data: {
-    crime_type: string;
-    lat: number;
-    long: number;
-    description: string;
-    city: string;
-    state: string;
-    country: string;
-    road: string;
-    pincode: string;
-  },
+export const refreshToken = async (
   onSuccess: CallableFunction = (result: object) => {},
   onFailure: CallableFunction = (message: string) => {}
 ) => {
+  try {
+    const res = await fetch(refreshUri, {
+      method: "POST",
+    });
+    if (!res.ok) {
+      const message = `An error has occured: ${res.status}`;
+      onFailure(message);
+      return;
+    }
+    const { access_token: accessToken } = await res.json();
+    onSuccess(accessToken);
+    return accessToken;
+  } catch (e) {
+    console.error(e);
+    onFailure("Failed to fetch");
+    return;
+  }
+};
+
+export const isTokenExpired = (jwtToken: string) => {
+  var tokenParts = jwtToken.split(".");
+  const { exp } = JSON.parse(decode(tokenParts[1]));
+  const now = Date.now() / 1000;
+  // adding some buffer time to prevent expiry right after user logs in
+  return exp - 30 < now;
+};
+
+export const accessTokenManager = {
+  get: async () => {
+    try {
+      const res = await AsyncStorage.getItem("@accessToken");
+      return res;
+    } catch (e) {
+      return false;
+    }
+  },
+  set: async (value: string) => {
+    try {
+      await AsyncStorage.setItem("@accessToken", value);
+    } catch (e) {
+      console.log(e);
+      return false;
+    }
+  },
+  remove: async () => {
+    try {
+      await AsyncStorage.removeItem("@accessToken");
+    } catch (e) {
+      console.log(e);
+      return false;
+    }
+  },
+};
+
+export const makeFetch = async (
+  data: { uri: string; method: string; body: object; headers: object },
+  onSuccess: CallableFunction = (result: object) => {},
+  onFailure: CallableFunction = (message: string) => {}
+) => {
+  const uri = `${baseUrl}${data.uri}`;
+  let accessToken = await accessTokenManager.get();
+  if (!accessToken || isTokenExpired(accessToken)) {
+    accessToken = await refreshToken((newAccessToken: string) => {
+      AsyncStorage.setItem("@accessToken", newAccessToken);
+    });
+  }
+
   const headers = {
     "Content-Type": "application/json",
+    ...data.headers,
+    Authorization: `Bearer ${accessToken}`,
   };
   try {
-    const res = await fetch(reportCrimeUri, {
+    const res = await fetch(uri, {
       method: "POST",
-      body: JSON.stringify(data),
+      body: JSON.stringify(data.body),
       headers,
     });
     if (!res.ok) {
