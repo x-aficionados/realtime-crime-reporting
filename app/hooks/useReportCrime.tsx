@@ -12,7 +12,7 @@ const ReportCrimeContext = React.createContext({
     data: {
         crime_type: string;
         lat: number;
-        long: number;
+        lon: number;
         description: string;
         city: string;
         state: string;
@@ -31,7 +31,7 @@ export const ReportCrimeProvider = ({ children }: { children: any }) => {
     data: {
         crime_type: string;
         lat: number;
-        long: number;
+        lon: number;
         description: string;
         city: string;
         state: string;

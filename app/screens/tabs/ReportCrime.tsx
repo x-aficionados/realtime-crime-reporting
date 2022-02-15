@@ -14,9 +14,10 @@ import {
   FormControl,
   Button,
   Input,
-  Stack,
+  Heading,
   Box,
   Center,
+  VStack,
   NativeBaseProvider
 } from "native-base";
 
@@ -45,7 +46,7 @@ function ReportCrime() {
       state: "",
       country: "",
       pincode: "",
-      lat: -200, // lat range from -90 to 90 and long -180 to 180
+      lat: -200, // lat range from -90 to 90 and lon -180 to 180
       lon: -200,
     });
 
@@ -113,115 +114,109 @@ function ReportCrime() {
       getLocation();
     }, []);
 
-    return (// eslint-disable-next-line react-native/no-inline-styles
-        <Box alignItems="center">
-            <StatusBar  barStyle="light-content" />
-            <Box safeAreaTop  />
-            <HStack px={1} py={3} justifyContent="space-between" alignItems="center" w="100%" maxW={350}>
-              <HStack alignItems="center">
-                <Input
-                  variant="underlined"
-                  mb={5}
-                  InputLeftElement={
-                    <Icon as={<AntDesign name="enviroment" />}
-                    size={5}
-                    ml={2}
-                    />}
-                  value={locationData.display_name}
-                >
-                </Input>
-              </HStack>
+    return (
+      <Center w="100%">
+        <Box safeArea p="2" py="8" w="90%" maxW="290">
+          <Heading
+            size="lg"
+            fontWeight="600"
+            color="coolGray.800"
+            _dark={{
+              color: "warmGray.50",
+            }}
+          >
+            Report Crime
+          </Heading>
+          <StatusBar  barStyle="light-content" />
+          <Box safeAreaTop  />
+          <HStack px={1} py={3} justifyContent="space-between" alignItems="center" w="100%" maxW={350}>
+            <HStack alignItems="center">
+              <Input
+                variant="underlined"
+                mb={5}
+                InputLeftElement={
+                  <Icon as={<AntDesign name="enviroment" />}
+                  size={5}
+                  ml={2}
+                  />}
+                value={locationData.display_name}
+              >
+              </Input>
             </HStack>
-            <Stack space={3} alignSelf="center" px={4} safeArea mt={4} w={{
-                base: "100%",
-                md: "25%"
-                }}>
-            </Stack>
-            {serverError && (
-            <Alert w="100%" status="error" mb={2}>
-                <HStack flexShrink={1} space={2} justifyContent="space-between">
-                  <HStack space={2} flexShrink={1}>
-                    <Alert.Icon mt={1} />
-                    <Text fontSize="md" color="coolGray.800">
-                      {serverError}
-                    </Text>
+          </HStack>
+          <VStack space={3} mt="5">
+            {serverError ? (
+              <Alert w="100%" status="error">
+                <VStack space={2} flexShrink={1} w="100%">
+                  <HStack flexShrink={1} space={2} justifyContent="space-between">
+                    <HStack space={2} flexShrink={1}>
+                      <Alert.Icon mt="1" />
+                      <Text fontSize="md" color="coolGray.800">
+                        {serverError}
+                      </Text>
+                    </HStack>
+                    <IconButton
+                      variant="unstyled"
+                      icon={<CloseIcon size="3" color="coolGray.600" />}
+                      onPress={() => setServerError("")}
+                    />
                   </HStack>
-                  <IconButton
-                    variant="unstyled"
-                    icon={<CloseIcon size={3} color="coolGray.600" />}
-                    onPress={() => setServerError("")}
-                  />
-                </HStack>
-            </Alert>
-          )}
-
-            <Box w="90%" maxWidth={300}>
-              <FormControl w="3/4" maxW={300} isRequired isInvalid={!!errors.crime_type} b={5}>
-                <FormControl.Label
-                  _text={{bold: true}}
-                >
-                Crime Type
-                </FormControl.Label>
-                <Select
-                  selectedValue={crimeData.crime_type} minWidth={200}
-                  accessibilityLabel="Choose Service" placeholder="Choose Service"
-                  onValueChange={itemValue => {
-                    setCrimeData({ ...crimeData, crime_type: itemValue});
-                    setErrors({ ...errors, crime_type: ""});
-                  }}
-                  _selectedItem=
-                  {{
-                    bg: "cyan.600",
-                    endIcon: <CheckIcon size={4} />
-                  }}
-                  mt={1}
+                </VStack>
+              </Alert>
+            ) : null}
+            <FormControl isRequired isInvalid={!!errors.crime_type}>
+              <FormControl.Label>Crime Type</FormControl.Label>
+              <Select
+                accessibilityLabel="Choose Crime Type"
+                placeholder="Choose Crime Type"
+                onValueChange={(itemValue) => {
+                  setCrimeData({ ...crimeData, crime_type: itemValue});
+                  setErrors({ ...errors, crime_type: ""});
+                }}
+                _selectedItem=
+                {{
+                   bg: "cyan.600",
+                   endIcon: <CheckIcon size={4} />
+                }}
+              >
+                  <Select.Item label="Robbery" value="roberry" />
+                  <Select.Item label="Harassment" value="harassment" />
+                  <Select.Item label="Hit 'N' Run" value="hit_n_run" />
+                  <Select.Item label="Murder" value="murder" />
+                  <Select.Item label="Mob Lynching" value="mob_lynching" />
+                  <Select.Item label="Corruption" value="corruption" />
+                  <Select.Item label="Police Misconduct" value="police_misconduct" />
+                  <Select.Item label="Human Trafficking" value="human_trafficking" />
+              </Select>
+              {(errors.crime_type.length > 0) &&
+                  <FormControl.ErrorMessage
+                    leftIcon={<WarningIcon size="xs"/>}
                   >
-                    <Select.Item label="Robbery" value="roberry" />
-                    <Select.Item label="Harassment" value="harassment" />
-                    <Select.Item label="Hit 'N' Run" value="hit_n_run" />
-                    <Select.Item label="Murder" value="murder" />
-                    <Select.Item label="Mob Lynching" value="mob_lynching" />
-                    <Select.Item label="Corruption" value="corruption" />
-                    <Select.Item label="Police Misconduct" value="police_misconduct" />
-                    <Select.Item label="Human Trafficking" value="human_trafficking" />
-                </Select>
-                {(errors.crime_type.length > 0) &&
-                <FormControl.ErrorMessage
-                  leftIcon={<WarningIcon size="xs"/>}
-                >
-                  Please make a selection!
-                </FormControl.ErrorMessage>}
-              </FormControl>
-              <FormControl w="75%" minW={200} maxW={200}>
-                <FormControl.Label
-                  _text=
-                  {{
-                    bold: true
-                  }}
-                  mt={5}
-                >
-                  Crime Description
-                </FormControl.Label>
-                <TextArea
-                  h={20}
-                  placeholder="Describe crime in more detail"
-                  w="75%" minW={200} maxW={200}
-                  onChangeText=
-                  {
-                    value => setCrimeData({ ...crimeData, description: value})
-                  }
-                />
-              </FormControl>
-              <Button
-                _hover={{ bg: 'primary.700' }}
-                leftIcon={<AntDesign name="pluscircleo" size="sm" color="white" />}
-                onPress={() =>
+                    Please make a selection!
+                  </FormControl.ErrorMessage>}
+            </FormControl>
+            <FormControl>
+              <FormControl.Label>Crime Description</FormControl.Label>
+              <TextArea
+                    h={20}
+                    placeholder="Describe crime in more detail"
+                    onChangeText=
+                    {
+                      value => setCrimeData({ ...crimeData, description: value})
+                    }
+              />
+            </FormControl>
+            <Button
+              mt="2"
+              colorScheme="indigo"
+              leftIcon={<AntDesign name="pluscircleo" size="sm" color="white" />}
+              onPress={() =>
                   validate()
                     ? reportCrime(
                         {
                           crime_type: crimeData.crime_type,
                           lat: locationData.lat,
-                          lon: locationData.long,
+                          lon: locationData.lon,
                           description: crimeData.description,
                           city: locationData.city,
                           state: locationData.state,
@@ -233,25 +228,13 @@ function ReportCrime() {
                       )
                     : null
                 }
-                mt={5} colorScheme="cyan"
-              >
-                Report
-              </Button>
-              {crimeReported &&
-                <Alert w="90%" maxW={400} status="success" colorScheme="success" mt={2}>
-                    <HStack flexShrink={1} space={2} alignItems="center" justifyContent="space-between">
-                      <HStack flexShrink={1} space={2} alignItems="center">
-                        <Alert.Icon />
-                        <Text fontSize="md" fontWeight="medium" color="coolGray.800">
-                          Submitted successfully!
-                        </Text>
-                      </HStack>
-                      <IconButton variant="unstyled" icon={<CloseIcon size={3} color="coolGray.600" />} />
-                    </HStack>
-                </Alert>}
-            </Box>
+            >
+              Report
+            </Button>
+          </VStack>
         </Box>
-      );
+      </Center>
+    );
 }
 export default () => {
     return (

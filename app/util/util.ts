@@ -204,3 +204,41 @@ export const makeFetch = async (
     return;
   }
 };
+
+export const validateReportCrime = async (
+  data: {
+    crime_type: string;
+    lat: number;
+    lon: number;
+    description: string;
+    city: string;
+    state: string;
+    country: string;
+    road: string;
+    pincode: string;
+  },
+  onSuccess: CallableFunction = (result: object) => {},
+  onFailure: CallableFunction = (message: string) => {}
+) => {
+  const headers = {
+    "Content-Type": "application/json",
+  };
+  try {
+    const res = await fetch(reportCrimeUri, {
+      method: "POST",
+      body: JSON.stringify(data),
+      headers,
+    });
+    if (!res.ok) {
+      const message = `An error has occured: ${res.status}`;
+      onFailure(message);
+      return;
+    }
+    const result = await res.json();
+    onSuccess(result);
+  } catch (e) {
+    console.error(e);
+    onFailure("Failed to fetch");
+    return;
+  }
+};
