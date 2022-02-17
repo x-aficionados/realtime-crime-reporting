@@ -7,6 +7,7 @@ const redirectUri = `${baseUrl}/auth/v1/oauth/callback`;
 const logInUri = `${baseUrl}/auth/v1/login`;
 const signUpUri = `${baseUrl}/auth/v1/signup`;
 const refreshUri = `${baseUrl}/auth/v1/refresh_token`;
+const reportCrimeUri = `${baseUrl}/api/v1/crimes`
 
 export const validateOAuthCallback = async (
   data: {
