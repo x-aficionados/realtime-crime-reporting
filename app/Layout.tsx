@@ -6,7 +6,6 @@ import SignUp from "./screens/SignUp";
 import Root from "./screens/Root";
 import Help from "./screens/modals/Help";
 import { useAuth } from "./hooks/useAuth";
-
 const Stack = createNativeStackNavigator();
 
 export default function Layout() {

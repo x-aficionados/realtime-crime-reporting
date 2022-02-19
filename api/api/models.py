@@ -6,6 +6,11 @@ class Crime(BaseModel):
     type: str
     lat: float
     lon: float
+    city: str
+    state: str
+    country: str
+    pincode: str
+    description: str
 
 
 class CloseContact(BaseModel):

@@ -168,7 +168,11 @@ export const accessTokenManager = {
 };
 
 export const makeFetch = async (
-  data: { uri: string; method: string; body: object; headers: object },
+  data: {
+    uri: string;
+    method: string;
+    body: object;
+  },
   onSuccess: CallableFunction = (result: object) => {},
   onFailure: CallableFunction = (message: string) => {}
 ) => {
@@ -182,7 +186,6 @@ export const makeFetch = async (
 
   const headers = {
     "Content-Type": "application/json",
-    ...data.headers,
     Authorization: `Bearer ${accessToken}`,
   };
   try {
