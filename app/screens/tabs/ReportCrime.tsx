@@ -52,18 +52,15 @@ function ReportCrime() {
   const validate = () => {
     if (crimeData.type.length === 0) {
       setErrors({ ...errors, type: "Crime Type is required" });
-      console.log("In if1");
       console.log(crimeData.type.length);
       return false;
     }
     if (locationData.lat === -200 || locationData.lon === -200) {
-      setErrors({ ...errors, location: "Couldn't obtain location" });
-      console.log("In if2");
+      setErrors({ ...errors, location: "Couldn't obtain location coordinates" });
       console.log(locationData.lat);
       console.log(locationData.lon);
       return false;
     }
-    console.log("return true");
     return true;
   };
 
@@ -75,6 +72,18 @@ function ReportCrime() {
     const url = `https://nominatim.openstreetmap.org/reverse?format=geojson&lat=${lat}&lon=${lon}`;
     let response = await fetch(url, requestOptions);
     console.log(response);
+    if(response.status != 200) {
+      setErrors({
+        ...errors,
+        location: "Couldn't obtain city, state and country info",
+      });
+    }
+    else {
+      setErrors({
+        ...errors,
+        location: "",
+      });
+    }
     response = await response.json();
     return response;
   };
@@ -83,7 +92,6 @@ function ReportCrime() {
     const getLocation = async () => {
       const { status } = Permissions.askAsync(Permissions.LOCATION_FOREGROUND);
       if (status !== "granted") {
-        console.log("Permission to access location was denied");
         setErrors({
           ...errors,
           location: "Permission to access location was denied",
@@ -92,6 +100,10 @@ function ReportCrime() {
       const location = await Location.getCurrentPositionAsync({});
       setLocation({ ...locationData, lat: location.coords.latitude });
       setLocation({ ...locationData, lon: location.coords.longitude });
+      setErrors({
+        ...errors,
+        location: "",
+      });
       console.log(location);
       const reverseLocation = await getLocationName(
         location.coords.latitude,
@@ -258,10 +270,30 @@ function ReportCrime() {
                 <IconButton
                   variant="unstyled"
                   icon={<CloseIcon size={3} color="coolGray.600" />}
+                  onPress={() => {crimeReported = false}}
                 />
               </HStack>
             </Alert>
           )}
+          {errors.location.length > 0 ? (
+            <Alert w="100%" status="error">
+              <VStack space={2} flexShrink={1} w="100%">
+                <HStack flexShrink={1} space={2} justifyContent="space-between">
+                  <HStack space={2} flexShrink={1}>
+                    <Alert.Icon mt="1" />
+                    <Text fontSize="md" color="coolGray.800">
+                      {errors.location}
+                    </Text>
+                  </HStack>
+                  <IconButton
+                    variant="unstyled"
+                    icon={<CloseIcon size="3" color="coolGray.600" />}
+                    onPress={() => setErrors({ ...errors, location: "" })}
+                  />
+                </HStack>
+              </VStack>
+            </Alert>
+          ) : null}
         </VStack>
       </Box>
     </Center>
