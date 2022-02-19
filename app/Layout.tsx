@@ -6,7 +6,6 @@ import SignUp from "./screens/SignUp";
 import Root from "./screens/Root";
 import Help from "./screens/modals/Help";
 import { useAuth } from "./hooks/useAuth";
-import { ReportCrimeProvider } from "./hooks/useReportCrime";
 const Stack = createNativeStackNavigator();
 
 export default function Layout() {
@@ -16,9 +15,7 @@ export default function Layout() {
       {authenticated ? (
         // Screens for logged in users
         <Stack.Group>
-          <ReportCrimeProvider>
-            <Stack.Screen name="Root" component={Root} />
-          </ReportCrimeProvider>
+          <Stack.Screen name="Root" component={Root} />
         </Stack.Group>
       ) : (
         // Auth screens

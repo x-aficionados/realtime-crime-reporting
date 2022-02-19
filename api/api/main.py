@@ -4,6 +4,7 @@ import uuid
 
 from kafka import KafkaProducer, KafkaConsumer
 from fastapi import FastAPI, Depends
+from fastapi.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 import requests
 
@@ -12,6 +13,19 @@ from .constants import KAFKA_CRIME_TOPIC, MONGODB_NAME, MONGODB_URL
 from .models import Crime, User
 
 app = FastAPI()
+
+origins = [
+    "http://localhost",
+    "http://localhost:19006",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 class Kafka:

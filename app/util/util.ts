@@ -7,7 +7,6 @@ const redirectUri = `${baseUrl}/auth/v1/oauth/callback`;
 const logInUri = `${baseUrl}/auth/v1/login`;
 const signUpUri = `${baseUrl}/auth/v1/signup`;
 const refreshUri = `${baseUrl}/auth/v1/refresh_token`;
-const reportCrimeUri = `${baseUrl}/api/v1/crimes`
 
 export const validateOAuthCallback = async (
   data: {
@@ -169,7 +168,11 @@ export const accessTokenManager = {
 };
 
 export const makeFetch = async (
-  data: { uri: string; method: string; body: object; headers: object },
+  data: {
+    uri: string;
+    method: string;
+    body: object;
+  },
   onSuccess: CallableFunction = (result: object) => {},
   onFailure: CallableFunction = (message: string) => {}
 ) => {
@@ -183,51 +186,12 @@ export const makeFetch = async (
 
   const headers = {
     "Content-Type": "application/json",
-    ...data.headers,
     Authorization: `Bearer ${accessToken}`,
   };
   try {
     const res = await fetch(uri, {
       method: "POST",
       body: JSON.stringify(data.body),
-      headers,
-    });
-    if (!res.ok) {
-      const message = `An error has occured: ${res.status}`;
-      onFailure(message);
-      return;
-    }
-    const result = await res.json();
-    onSuccess(result);
-  } catch (e) {
-    console.error(e);
-    onFailure("Failed to fetch");
-    return;
-  }
-};
-
-export const validateReportCrime = async (
-  data: {
-    crime_type: string;
-    lat: number;
-    lon: number;
-    description: string;
-    city: string;
-    state: string;
-    country: string;
-    road: string;
-    pincode: string;
-  },
-  onSuccess: CallableFunction = (result: object) => {},
-  onFailure: CallableFunction = (message: string) => {}
-) => {
-  const headers = {
-    "Content-Type": "application/json",
-  };
-  try {
-    const res = await fetch(reportCrimeUri, {
-      method: "POST",
-      body: JSON.stringify(data),
       headers,
     });
     if (!res.ok) {

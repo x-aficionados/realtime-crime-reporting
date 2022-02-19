@@ -1,25 +1,20 @@
 import React, { useState, useEffect, SetStateAction } from "react";
 
-import {
-  validateReportCrime,
-} from "../util/util";
-
-
+import { makeFetch } from "../util/util";
 
 const ReportCrimeContext = React.createContext({
   crimeReported: false,
   reportCrime: async (
     data: {
-        crime_type: string;
-        lat: number;
-        lon: number;
-        description: string;
-        city: string;
-        state: string;
-        country: string;
-        road: string;
-        pincode: string;
-      },
+      type: string;
+      lat: number;
+      lon: number;
+      description: string;
+      city: string;
+      state: string;
+      country: string;
+      pincode: string;
+    },
     setServerError: (message: string) => void
   ) => {},
 });
@@ -29,21 +24,19 @@ export const ReportCrimeProvider = ({ children }: { children: any }) => {
 
   const reportCrime = async (
     data: {
-        crime_type: string;
-        lat: number;
-        lon: number;
-        description: string;
-        city: string;
-        state: string;
-        country: string;
-        road: string;
-        pincode: string;
-      },
+      type: string;
+      lat: number;
+      lon: number;
+      description: string;
+      city: string;
+      state: string;
+      country: string;
+      pincode: string;
+    },
     setServerError: (message: string) => void
   ) => {
-    console.log(data);
-    validateReportCrime(
-      data,
+    makeFetch(
+      { uri: "/api/v1/crimes", method: "POST", body: data },
       () => setCrimeReported(true),
       (message: string) => setServerError(message)
     );
