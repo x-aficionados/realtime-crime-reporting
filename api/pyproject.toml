@@ -13,6 +13,7 @@ PyJWT = "^2.3.0"
 cryptography = "^36.0.1"
 requests = "^2.27.1"
 motor = "^2.5.1"
+twilio = "^7.6.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"

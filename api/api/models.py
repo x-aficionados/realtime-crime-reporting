@@ -16,13 +16,13 @@ class Crime(BaseModel):
 class CloseContact(BaseModel):
     first_name: str
     last_name: str
-    contact_no: int
+    contact_no: str
 
 
 class User(BaseModel):
     email: str
     first_name: str
     last_name: str
-    contact_no: int
+    contact_no: str
     address: str
     close_contacts: List[CloseContact]
