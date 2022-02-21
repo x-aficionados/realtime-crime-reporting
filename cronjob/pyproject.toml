@@ -7,6 +7,7 @@ authors = ["ShreyaTalati <talatishreya2@gmail.com>", "harsh8398 <pharsh58@gmail.
 [tool.poetry.dependencies]
 python = "^3.9"
 schedule = "^1.1.0"
+pymongo = "^4.0.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
