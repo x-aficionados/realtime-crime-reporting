@@ -192,7 +192,7 @@ function ReportCrime() {
                 endIcon: <CheckIcon size={4} />,
               }}
             >
-              <Select.Item label="Robbery" value="roberry" />
+              <Select.Item label="Robbery" value="robbery" />
               <Select.Item label="Harassment" value="harassment" />
               <Select.Item label="Hit 'N' Run" value="hit_n_run" />
               <Select.Item label="Murder" value="murder" />
