@@ -135,6 +135,9 @@ services:
       - KAFKA_CRIME_TOPIC
       - MONGODB_URL
       - MONGODB_NAME
+      - TWILIO_ACCOUNT_SID
+      - TWILIO_AUTH_TOKEN
+      - TWILIO_PHONE_NUMBER
     depends_on:
       - kafka
       - mongodb

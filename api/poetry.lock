@@ -415,6 +415,14 @@ python-versions = ">=3.5"
 cli = ["click (>=5.0)"]
 
 [[package]]
+name = "pytz"
+version = "2021.3"
+description = "World timezone definitions, modern and historical"
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "pyyaml"
 version = "6.0"
 description = "YAML parser and emitter for Python"
@@ -471,6 +479,19 @@ optional = false
 python-versions = ">=3.6"
 
 [[package]]
+name = "twilio"
+version = "7.6.0"
+description = "Twilio API client and TwiML generator"
+category = "main"
+optional = false
+python-versions = ">=3.6.0"
+
+[package.dependencies]
+PyJWT = ">=2.0.0,<3.0.0"
+pytz = "*"
+requests = ">=2.0.0"
+
+[[package]]
 name = "typing-extensions"
 version = "4.0.1"
 description = "Backported and Experimental Type Hints for Python 3.6+"
@@ -493,7 +514,7 @@ socks = ["PySocks (>=1.5.6,!=1.5.7,<2.0)"]
 
 [[package]]
 name = "uvicorn"
-version = "0.17.1"
+version = "0.17.5"
 description = "The lightning-fast ASGI server."
 category = "main"
 optional = false
@@ -554,7 +575,7 @@ python-versions = ">=3.7"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "607edd56dae17c275e573c3a81a3c1081cdde8316db5c288cf75e72ac168c5d4"
+content-hash = "fd29dc9c31d6ccb46618525a026ecb52b1d9f06dd5cf6c36ced50d2f66f2c5a9"
 
 [metadata.files]
 anyio = [
@@ -923,6 +944,10 @@ python-dotenv = [
     {file = "python-dotenv-0.19.2.tar.gz", hash = "sha256:a5de49a31e953b45ff2d2fd434bbc2670e8db5273606c1e737cc6b93eff3655f"},
     {file = "python_dotenv-0.19.2-py2.py3-none-any.whl", hash = "sha256:32b2bdc1873fd3a3c346da1c6db83d0053c3c62f28f1f38516070c4c8971b1d3"},
 ]
+pytz = [
+    {file = "pytz-2021.3-py2.py3-none-any.whl", hash = "sha256:3672058bc3453457b622aab7a1c3bfd5ab0bdae451512f6cf25f64ed37f5b87c"},
+    {file = "pytz-2021.3.tar.gz", hash = "sha256:acad2d8b20a1af07d4e4c9d2e9285c5ed9104354062f275f3fcd88dcef4f1326"},
+]
 pyyaml = [
     {file = "PyYAML-6.0-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:d4db7c7aef085872ef65a8fd7d6d09a14ae91f691dec3e87ee5ee0539d516f53"},
     {file = "PyYAML-6.0-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:9df7ed3b3d2e0ecfe09e14741b857df43adb5a3ddadc919a2d94fbdf78fea53c"},
@@ -974,6 +999,10 @@ tomli = [
     {file = "tomli-1.2.3-py3-none-any.whl", hash = "sha256:e3069e4be3ead9668e21cb9b074cd948f7b3113fd9c8bba083f48247aab8b11c"},
     {file = "tomli-1.2.3.tar.gz", hash = "sha256:05b6166bff487dc068d322585c7ea4ef78deed501cc124060e0f238e89a9231f"},
 ]
+twilio = [
+    {file = "twilio-7.6.0-py2.py3-none-any.whl", hash = "sha256:11b4dad540359356fedf42312bf293c57a550a7bed5f30c992e5820adf4b1fc1"},
+    {file = "twilio-7.6.0.tar.gz", hash = "sha256:df136f5ef8fd03a8c9d196cd2acd3c64afc8b9747f7576faf444d02c0fbabede"},
+]
 typing-extensions = [
     {file = "typing_extensions-4.0.1-py3-none-any.whl", hash = "sha256:7f001e5ac290a0c0401508864c7ec868be4e701886d5b573a9528ed3973d9d3b"},
     {file = "typing_extensions-4.0.1.tar.gz", hash = "sha256:4ca091dea149f945ec56afb48dae714f21e8692ef22a395223bcd328961b6a0e"},
@@ -983,8 +1012,8 @@ urllib3 = [
     {file = "urllib3-1.26.8.tar.gz", hash = "sha256:0e7c33d9a63e7ddfcb86780aac87befc2fbddf46c58dbb487e0855f7ceec283c"},
 ]
 uvicorn = [
-    {file = "uvicorn-0.17.1-py3-none-any.whl", hash = "sha256:8b16d9ecb76500f7804184f182835fe8a2b54716d3b0b6bb2da0b2b192f62c73"},
-    {file = "uvicorn-0.17.1.tar.gz", hash = "sha256:dffbacb8cc25d924d68d231d2c478c4fe6727c36537d8de21e5de591b37afc41"},
+    {file = "uvicorn-0.17.5-py3-none-any.whl", hash = "sha256:8adddf629b79857b48b999ae1b14d6c92c95d4d7840bd86461f09bee75f1653e"},
+    {file = "uvicorn-0.17.5.tar.gz", hash = "sha256:c04a9c069111489c324f427501b3840d306c6b91a77b00affc136a840a3f45f1"},
 ]
 uvloop = [
     {file = "uvloop-0.16.0-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:6224f1401025b748ffecb7a6e2652b17768f30b1a6a3f7b44660e5b5b690b12d"},

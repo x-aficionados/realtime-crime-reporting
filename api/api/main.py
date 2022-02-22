@@ -2,14 +2,24 @@ import time
 import json
 import uuid
 
-from kafka import KafkaProducer, KafkaConsumer
-from fastapi import FastAPI, Depends
-from fastapi.middleware.cors import CORSMiddleware
-from motor.motor_asyncio import AsyncIOMotorClient
 import requests
 
+from kafka import KafkaProducer, KafkaConsumer
+from fastapi import FastAPI, Depends, BackgroundTasks
+from fastapi.middleware.cors import CORSMiddleware
+from motor.motor_asyncio import AsyncIOMotorClient
+from twilio.rest import Client
+from twilio.base.exceptions import TwilioRestException
+
 from .dependency import JWTBearer
-from .constants import KAFKA_CRIME_TOPIC, MONGODB_NAME, MONGODB_URL
+from .constants import (
+    KAFKA_CRIME_TOPIC,
+    MONGODB_NAME,
+    MONGODB_URL,
+    TWILIO_ACCOUNT_SID,
+    TWILIO_AUTH_TOKEN,
+    TWILIO_PHONE_NUMBER,
+)
 from .models import Crime, User
 
 app = FastAPI()
@@ -73,7 +83,7 @@ async def startup_kafka_db_clients():
     app.kafka_client = Kafka(KAFKA_CRIME_TOPIC)
     app.mongodb_client = AsyncIOMotorClient(MONGODB_URL)
     app.mongodb = app.mongodb_client[MONGODB_NAME]
-    # app.mongo_client_users = MongoDB(collection_name="all_user_info")
+    app.twilio_client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
 
     # register mongo-sink connector to kafka-connect
     url = "http://mongo-connect:8083/connectors/mongo-sink/config"
@@ -100,15 +110,41 @@ async def startup_kafka_db_clients():
 
 @app.on_event("shutdown")
 async def shutdown_kafka_db_clients():
-    app.mongo_client.close()
+    app.mongodb_client.close()
     app.kafka_client.close()
+
+
+async def alert_contacts(user_id, crime_info):
+    user_info = await app.mongodb.users.find_one(
+        user_id, {"_id": 0, "hashed_password": 0, "auth_type": 0}
+    )
+    close_contacts = user_info.get("close_contacts", [])
+
+    def send_sms(to_number, body):
+        print("sending message to {}".format(to_number))
+        return app.twilio_client.messages.create(
+            from_=TWILIO_PHONE_NUMBER, to=to_number, body=body
+        )
+
+    for contact in close_contacts:
+        if contact.get("contact_no"):
+            # validate phone number
+            # ref: https://www.twilio.com/blog/validate-phone-number-input
+            try:
+                app.twilio_client.lookups.v1.phone_numbers("+15108675310").fetch()
+                send_sms(contact["contact_no"], json.dumps(crime_info, indent=2))
+            except TwilioRestException as e:
+                print("Invalid phone number: {}".format(contact.get("contact_no")))
+                print("Response: {}".format(e))
 
 
 ################# Crimes #######################
 
 
 @app.post("/crimes")
-async def report_crime(crime: Crime, user_id: str = Depends(JWTBearer())):
+async def report_crime(
+    crime: Crime, background_tasks: BackgroundTasks, user_id: str = Depends(JWTBearer())
+):
     # status should be later set to open from kafka consumer
     crime = {
         **crime.dict(),
@@ -120,6 +156,7 @@ async def report_crime(crime: Crime, user_id: str = Depends(JWTBearer())):
 
     app.kafka_client.send_data_to_kafka(crime)
 
+    background_tasks.add_task(alert_contacts, user_id, crime)
     return {"id": crime["_id"]}
 
 
