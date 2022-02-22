@@ -14,13 +14,11 @@ def get_count_from_aggr(field, mongodb, collection_name):
 def aggr_data_field_wise(pipeline, mongodb, collection_name):
     cursor = mongodb.raw_crime_info.aggregate(pipeline)
     for doc in cursor:
-        print("DOC: {}".format(doc))
         if(collection_name in mongodb.list_collection_names()):
             count_int_aggr = get_count_from_aggr(
                 doc["_id"], mongodb,
                 collection_name
             )
-            print("AGGR COUNT: {}".format(count_int_aggr))
             if(count_int_aggr > 0):
                 mongodb[collection_name].update_one(
                     {"_id": doc["_id"]},
@@ -54,17 +52,14 @@ def aggr_data_job():
             {"$match": {"created_at": {"$gt": start_time, "$lt": end_time}}},
             {"$group": {"_id": "$" + field, "count": {"$sum": 1}}},
         ]
-        print("FIELD: {}".format(field))
         aggr_data_field_wise(pipeline, mongodb, collection_name)
     mongodb_client.close()
 
-aggr_data_job()
 
-# schedule.every().minute.at(":23").do(aggr_data_job)
-# # schedule.every().hour.do(aggr_data_job)
+schedule.every().hour.do(aggr_data_job)
 
-# while True:
-#     # Checks whether a scheduled task
-#     # is pending to run or not
-#     schedule.run_pending()
-#     time.sleep(1)
+while True:
+    # Checks whether a scheduled task
+    # is pending to run or not
+    schedule.run_pending()
+    time.sleep(5)
