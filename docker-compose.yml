@@ -31,7 +31,8 @@ services:
     depends_on:
       - api
       - auth
-      # - ui
+      - cronjob
+      - ui
 
   zookeeper:
     image: wurstmeister/zookeeper:3.4.6
@@ -69,11 +70,11 @@ services:
     image: mongo:5.0.5
     container_name: mongodb
     environment:
-      - MONGO_INITDB_DATABASE=$MONGODB_NAME
-      - MONGO_INITDB_ROOT_USERNAME=$MONGO_ADMIN_USERNAME
-      - MONGO_INITDB_ROOT_PASSWORD=$MONGO_ADMIN_PASSWORD
+      - MONGO_INITDB_DATABASE=crimenetwork
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=admin123
     volumes:
-      - ./mongodb_data:/data/db
+      - mongodb_data:/data/db
       - ./db/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
     networks:
       - crime-network
@@ -84,9 +85,9 @@ services:
     ports:
       - 8081:8081
     environment:
-      - ME_CONFIG_MONGODB_URL=mongodb://$MONGO_ADMIN_USERNAME:$MONGO_ADMIN_PASSWORD@mongodb:27017
-      - ME_CONFIG_MONGODB_ADMINUSERNAME=$MONGO_ADMIN_USERNAME
-      - ME_CONFIG_MONGODB_ADMINPASSWORD=$MONGO_ADMIN_PASSWORD
+      - ME_CONFIG_MONGODB_URL=mongodb://admin:admin123@mongodb:27017
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=admin
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=admin123
     networks:
       - crime-network
     depends_on:
@@ -199,6 +200,29 @@ services:
   #   depends_on:
   #     - api
   #     - auth
+  cronjob:
+    build: ./cronjob
+    image: cronjob
+    container_name: cronjob
+    expose:
+      - 5002
+    volumes:
+      - ./cronjob/cronjob:/code/cronjob
+    environment:
+      - SERVICE_TAGS=dev
+      - SERVICE_NAME=cronjob
+      - UVICORN_PORT=5002
+      - UVICORN_HOST=0.0.0.0
+      - UVICORN_ROOT_PATH=/api/v1/
+      - MONGODB_URL
+      - MONGODB_NAME
+    depends_on:
+      - mongodb
+    networks:
+      - crime-network
+
+volumes:
+  mongodb_data:
 
 networks:
   crime-network:
