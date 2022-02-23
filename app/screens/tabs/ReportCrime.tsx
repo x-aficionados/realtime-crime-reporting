@@ -112,16 +112,19 @@ function ReportCrime() {
       console.log("Returning from getLocation name");
       console.log(reverseLocation);
       setLocation({
-        display_name: reverseLocation.features[0].properties.display_name,
-        city: reverseLocation.features[0].properties.address.city,
-        state: reverseLocation.features[0].properties.address.state,
-        country: reverseLocation.features[0].properties.address.country,
-        pincode: reverseLocation.features[0].properties.address.postcode,
-        lat: reverseLocation.features[0].geometry.coordinates[0],
-        lon: reverseLocation.features[0].geometry.coordinates[1],
+        display_name: reverseLocation.features[0].properties.display_name || "null",
+        city: reverseLocation.features[0].properties.address.city ||
+        reverseLocation.features[0].properties.address.state_district ||
+        "null",
+        state: reverseLocation.features[0].properties.address.state || "null",
+        country: reverseLocation.features[0].properties.address.country || "null",
+        pincode: reverseLocation.features[0].properties.address.postcode || "null" ,
+        lat: reverseLocation.features[0].geometry.coordinates[0] || "null",
+        lon: reverseLocation.features[0].geometry.coordinates[1] || "null",
       });
     };
     getLocation();
+    console.log(locationData);
   }, []);
 
   return (
