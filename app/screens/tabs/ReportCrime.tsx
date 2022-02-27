@@ -112,16 +112,19 @@ function ReportCrime() {
       console.log("Returning from getLocation name");
       console.log(reverseLocation);
       setLocation({
-        display_name: reverseLocation.features[0].properties.display_name,
-        city: reverseLocation.features[0].properties.address.city,
-        state: reverseLocation.features[0].properties.address.state,
-        country: reverseLocation.features[0].properties.address.country,
-        pincode: reverseLocation.features[0].properties.address.postcode,
-        lat: reverseLocation.features[0].geometry.coordinates[0],
-        lon: reverseLocation.features[0].geometry.coordinates[1],
+        display_name: reverseLocation.features[0].properties.display_name || "null",
+        city: reverseLocation.features[0].properties.address.city ||
+        reverseLocation.features[0].properties.address.state_district ||
+        "null",
+        state: reverseLocation.features[0].properties.address.state || "null",
+        country: reverseLocation.features[0].properties.address.country || "null",
+        pincode: reverseLocation.features[0].properties.address.postcode || "null" ,
+        lat: reverseLocation.features[0].geometry.coordinates[0] || "null",
+        lon: reverseLocation.features[0].geometry.coordinates[1] || "null",
       });
     };
     getLocation();
+    console.log(locationData);
   }, []);
 
   return (
@@ -192,7 +195,7 @@ function ReportCrime() {
                 endIcon: <CheckIcon size={4} />,
               }}
             >
-              <Select.Item label="Robbery" value="roberry" />
+              <Select.Item label="Robbery" value="robbery" />
               <Select.Item label="Harassment" value="harassment" />
               <Select.Item label="Hit 'N' Run" value="hit_n_run" />
               <Select.Item label="Murder" value="murder" />
