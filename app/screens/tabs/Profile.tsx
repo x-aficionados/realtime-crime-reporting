@@ -17,6 +17,7 @@ import {
   Link,
   VStack,
   Text,
+  ScrollView
 } from "native-base";
 
 export default function Profile() {
@@ -25,25 +26,44 @@ export default function Profile() {
   const userInfoUrl = "/api/v1/userinfo"
   let [detailsUpdated, setDetailsUpdated] = useState(false);
   const [serverError, setServerError] = useState("");
+
+  const [closeContact1, setCloseContact1] = useState({
+    first_name: "",
+    last_name: "",
+    contact_no: "",
+  });
+  const [closeContact2, setCloseContact2] = useState({
+    first_name: "",
+    last_name: "",
+    contact_no: "",
+  });
+  const [closeContact3, setCloseContact3] = useState({
+    first_name: "",
+    last_name: "",
+    contact_no: "",
+  });
+
   const [userData, setUserData] = useState({
     email: "",
     firstName: "",
     lastName: "",
     address: "",
     contactNo: "",
-    closeContacts: [
-      {
-          "first_name": "Jane",
-          "last_name": "Doe",
-          "contact_no": "1234567890"
-      }
-  ],
   });
   const [errors, setErrors] = useState({
     firstName: "",
     lastName: "",
     address: "",
     contactNo: "",
+    closeContact1FirstName: "",
+    closeContact1LastName: "",
+    closeContact1ContactNo: "",
+    closeContact2FirstName: "",
+    closeContact2LastName: "",
+    closeContact2ContactNo: "",
+    closeContact3FirstName: "",
+    closeContact3LastName: "",
+    closeContact3ContactNo: "",
   });
 
   const updateUserDetails = async (
@@ -59,10 +79,17 @@ export default function Profile() {
     ) => {
       makeFetch(
         { uri: userInfoUrl, method: "POST", body: data },
-        () => {setDetailsUpdated(true);},
-        (message: string) => setServerError(message)
+        () => setDetailsUpdated(true),
+        (message: string) => {setServerError(message)}
       );
     };
+
+    // const getIndividualCloseContacts = (close_contacts) => {
+    //   for(const close_contact of close_contacts) {
+    //     console.log(close_contact);
+    //     setCloseContact1(close_contact);
+    //   }
+    // }
 
     useEffect(() => {
       const getUserDetails = async (
@@ -78,14 +105,31 @@ export default function Profile() {
               lastName: response.last_name || "",
               contactNo: response.contact_no || "",
               address: response.address || "",
-              closeContacts: response.close_contacts || [
-                {
-                    "first_name": "Jane",
-                    "last_name": "Doe",
-                    "contact_no": "1234567890"
-                }
-            ],
             });
+            console.log(response.close_contacts);
+            console.log(response.close_contacts[0]);
+            const num_contacts = response.close_contacts.length;
+            if(num_contacts > 0) {
+              setCloseContact1({
+                first_name: response.close_contacts[0].first_name || "",
+                last_name: response.close_contacts[0].last_name || "",
+                contact_no: response.close_contacts[0].contact_no || "",
+              });
+            }
+            if(num_contacts > 1) {
+              setCloseContact2({
+                first_name: response.close_contacts[1].first_name || "",
+                last_name: response.close_contacts[1].last_name || "",
+                contact_no: response.close_contacts[1].contact_no || "",
+              });
+            }
+            if(num_contacts > 2) {
+              setCloseContact3({
+                first_name: response.close_contacts[2].first_name || "",
+                last_name: response.close_contacts[2].last_name || "",
+                contact_no: response.close_contacts[2].contact_no || "",
+              });
+            }
           },
           (message: string) => setServerError(message)
         );
@@ -93,6 +137,12 @@ export default function Profile() {
       getUserDetails(setServerError);
     }, [])
 
+    // const validateNames = (name: string, nameState: string) {
+    //   if (name.length === 0) {
+    //     setErrors({ ...errors, nameState: "First name is required" });
+    //     return false;
+    //   }
+    // }
 
     const validate = () => {
       if (userData.firstName.length === 0) {
@@ -104,11 +154,16 @@ export default function Profile() {
       } else if (userData.contactNo.length === 0) {
         setErrors({ ...errors, contactNo: "Contact is required" });
         return false;
+      } else if (!((userData.contactNo).match(/\d/g).length === 10)) {
+        setErrors({ ...errors, contactNo: "Contact is not valid" });
+        return false;
       }
+      /*TODO: Add validation for close contacts*/
       return true;
     };
 
   return (
+    <ScrollView>
     <Center w="100%">
     <Box safeArea p="2" w="90%" maxW="290" py="8">
       <Heading
@@ -213,7 +268,183 @@ export default function Profile() {
             </FormControl.HelperText>
           )}
         </FormControl>
-
+        <Heading
+          mt="1"
+          color="coolGray.600"
+          _dark={{
+            color: "warmGray.200",
+          }}
+          fontWeight="medium"
+          size="xs"
+        >
+          Close Contact 1
+        </Heading>
+        <FormControl isRequired isInvalid={!!errors.closeContact1FirstName}>
+          <FormControl.Label>First Name</FormControl.Label>
+          <Input value={closeContact1.first_name}
+            onChangeText={(value) => {
+              setCloseContact1({...closeContact1, first_name: value});
+              setErrors({ ...errors, closeContact1FirstName: "" });
+            }}
+          />
+          {errors.closeContact1FirstName ? (
+            <FormControl.ErrorMessage>
+              {errors.closeContact1FirstName}
+            </FormControl.ErrorMessage>
+          ) : (
+            <FormControl.HelperText>e.g. John</FormControl.HelperText>
+          )}
+        </FormControl>
+        <FormControl isRequired isInvalid={!!errors.closeContact1LastName}>
+          <FormControl.Label>Last Name</FormControl.Label>
+          <Input value={closeContact1.last_name}
+            onChangeText={(value) => {
+              setCloseContact1({...closeContact1, last_name: value});
+              setErrors({ ...errors, closeContact1LastName: "" });
+            }}
+          />
+          {errors.closeContact1LastName ? (
+            <FormControl.ErrorMessage>
+              {errors.closeContact1LastName}
+            </FormControl.ErrorMessage>
+          ) : (
+            <FormControl.HelperText>e.g. Doe</FormControl.HelperText>
+          )}
+        </FormControl>
+        <FormControl isRequired isInvalid={!!errors.closeContact1ContactNo}>
+          <FormControl.Label>Contact Number</FormControl.Label>
+          <Input value={closeContact1.contact_no}
+            onChangeText={(value) => {
+              setCloseContact1({...closeContact1, contact_no: value});
+              setErrors({ ...errors, closeContact1ContactNo: "" });
+            }}
+          />
+          {errors.closeContact1ContactNo ? (
+            <FormControl.ErrorMessage>
+              {errors.closeContact1ContactNo}
+            </FormControl.ErrorMessage>
+          ) : (
+            <FormControl.HelperText>e.g. 123456789</FormControl.HelperText>
+          )}
+        </FormControl>
+        <Heading
+          mt="1"
+          color="coolGray.600"
+          _dark={{
+            color: "warmGray.200",
+          }}
+          fontWeight="medium"
+          size="xs"
+        >
+          Close Contact 2
+        </Heading>
+        <FormControl isRequired isInvalid={!!errors.closeContact2FirstName}>
+          <FormControl.Label>First Name</FormControl.Label>
+          <Input value={closeContact2.first_name}
+            onChangeText={(value) => {
+              setCloseContact2({...closeContact2, first_name: value});
+              setErrors({ ...errors, closeContact2FirstName: "" });
+            }}
+          />
+          {errors.closeContact2FirstName ? (
+            <FormControl.ErrorMessage>
+              {errors.closeContact2FirstName}
+            </FormControl.ErrorMessage>
+          ) : (
+            <FormControl.HelperText>e.g. John</FormControl.HelperText>
+          )}
+        </FormControl>
+        <FormControl isRequired isInvalid={!!errors.closeContact2LastName}>
+          <FormControl.Label>Last Name</FormControl.Label>
+          <Input value={closeContact2.last_name}
+            onChangeText={(value) => {
+              setCloseContact2({...closeContact2, last_name: value});
+              setErrors({ ...errors, closeContact2LastName: "" });
+            }}
+          />
+          {errors.closeContact2LastName ? (
+            <FormControl.ErrorMessage>
+              {errors.closeContact2LastName}
+            </FormControl.ErrorMessage>
+          ) : (
+            <FormControl.HelperText>e.g. Doe</FormControl.HelperText>
+          )}
+        </FormControl>
+        <FormControl isRequired isInvalid={!!errors.closeContact2ContactNo}>
+          <FormControl.Label>Contact Number</FormControl.Label>
+          <Input value={closeContact2.contact_no}
+            onChangeText={(value) => {
+              setCloseContact2({...closeContact2, contact_no: value});
+              setErrors({ ...errors, closeContact2ContactNo: "" });
+            }}
+          />
+          {errors.closeContact2ContactNo ? (
+            <FormControl.ErrorMessage>
+              {errors.closeContact2ContactNo}
+            </FormControl.ErrorMessage>
+          ) : (
+            <FormControl.HelperText>e.g. 123456789</FormControl.HelperText>
+          )}
+        </FormControl>
+        <Heading
+          mt="1"
+          color="coolGray.600"
+          _dark={{
+            color: "warmGray.200",
+          }}
+          fontWeight="medium"
+          size="xs"
+        >
+          Close Contact 3
+        </Heading>
+        <FormControl isRequired isInvalid={!!errors.closeContact3FirstName}>
+          <FormControl.Label>First Name</FormControl.Label>
+          <Input value={closeContact3.first_name}
+            onChangeText={(value) => {
+              setCloseContact3({...closeContact3, first_name: value});
+              setErrors({ ...errors, closeContact3FirstName: "" });
+            }}
+          />
+          {errors.closeContact3FirstName ? (
+            <FormControl.ErrorMessage>
+              {errors.closeContact3FirstName}
+            </FormControl.ErrorMessage>
+          ) : (
+            <FormControl.HelperText>e.g. John</FormControl.HelperText>
+          )}
+        </FormControl>
+        <FormControl isRequired isInvalid={!!errors.closeContact3LastName}>
+          <FormControl.Label>Last Name</FormControl.Label>
+          <Input value={closeContact3.last_name}
+            onChangeText={(value) => {
+              setCloseContact3({...closeContact3, last_name: value});
+              setErrors({ ...errors, closeContact3LastName: "" });
+            }}
+          />
+          {errors.closeContact3LastName ? (
+            <FormControl.ErrorMessage>
+              {errors.closeContact3LastName}
+            </FormControl.ErrorMessage>
+          ) : (
+            <FormControl.HelperText>e.g. Doe</FormControl.HelperText>
+          )}
+        </FormControl>
+        <FormControl isRequired isInvalid={!!errors.closeContact3ContactNo}>
+          <FormControl.Label>Contact Number</FormControl.Label>
+          <Input value={closeContact3.contact_no}
+            onChangeText={(value) => {
+              setCloseContact3({...closeContact3, contact_no: value});
+              setErrors({ ...errors, closeContact3ContactNo: "" });
+            }}
+          />
+          {errors.closeContact3ContactNo ? (
+            <FormControl.ErrorMessage>
+              {errors.closeContact3ContactNo}
+            </FormControl.ErrorMessage>
+          ) : (
+            <FormControl.HelperText>e.g. 123456789</FormControl.HelperText>
+          )}
+        </FormControl>
         <Button
           mt="2"
           colorScheme="indigo"
@@ -226,7 +457,7 @@ export default function Profile() {
                     last_name: userData.lastName,
                     contact_no: userData.contactNo,
                     address: userData.address,
-                    close_contacts: userData.closeContacts,
+                    close_contacts: [closeContact1, closeContact2, closeContact3],
                   },
                   setServerError
                 )
@@ -235,8 +466,7 @@ export default function Profile() {
         >
           Update Details
         </Button>
-        {/*TODO: line 250 to 277 are not working */
-            detailsUpdated && (
+        {detailsUpdated && (
             <Alert
               w="90%"
               maxW={400}
@@ -268,5 +498,6 @@ export default function Profile() {
       </VStack>
     </Box>
   </Center>
+  </ScrollView>
   );
 }
