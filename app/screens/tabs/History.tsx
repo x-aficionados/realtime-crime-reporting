@@ -1,10 +1,10 @@
 import React from "react";
 import { Box, Text } from "native-base";
 
-export default function Feed() {
+export default function History() {
   return (
     <Box alignItems="center" safeArea>
-      <Text>Feed</Text>
+      <Text>History</Text>
     </Box>
   );
 }

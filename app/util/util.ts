@@ -7,6 +7,7 @@ const redirectUri = `${baseUrl}/auth/v1/oauth/callback`;
 const logInUri = `${baseUrl}/auth/v1/login`;
 const signUpUri = `${baseUrl}/auth/v1/signup`;
 const refreshUri = `${baseUrl}/auth/v1/refresh_token`;
+const getCurrentUserInfo = `${baseUrl}/api/v1/userinfo`;
 
 export const validateOAuthCallback = async (
   data: {
@@ -189,11 +190,15 @@ export const makeFetch = async (
     Authorization: `Bearer ${accessToken}`,
   };
   try {
-    const res = await fetch(uri, {
-      method: "POST",
+    const params = data.method == "GET" ? {
+      method: data.method,
+      headers,
+    }: {
+      method: data.method,
       body: JSON.stringify(data.body),
       headers,
-    });
+    }
+    const res = await fetch(uri, params);
     if (!res.ok) {
       const message = `An error has occured: ${res.status}`;
       onFailure(message);
