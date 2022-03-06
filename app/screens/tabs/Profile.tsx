@@ -137,29 +137,76 @@ export default function Profile() {
       getUserDetails(setServerError);
     }, [])
 
-    // const validateNames = (name: string, nameState: string) {
-    //   if (name.length === 0) {
-    //     setErrors({ ...errors, nameState: "First name is required" });
-    //     return false;
-    //   }
-    // }
-
-    const validate = () => {
-      if (userData.firstName.length === 0) {
-        setErrors({ ...errors, firstName: "First name is required" });
-        return false;
-      } else if (userData.lastName.length === 0) {
-        setErrors({ ...errors, lastName: "Last name is required" });
-        return false;
-      } else if (userData.contactNo.length === 0) {
-        setErrors({ ...errors, contactNo: "Contact is required" });
-        return false;
-      } else if (!((userData.contactNo).match(/\d/g).length === 10)) {
-        setErrors({ ...errors, contactNo: "Contact is not valid" });
+    const validateNames = (name: string, validation: any) => {
+      if (name.length === 0) {
+        setErrors(validation);
         return false;
       }
-      /*TODO: Add validation for close contacts*/
       return true;
+    }
+    const validateContactNumbers = (contact: string, validation: any) => {
+      if (!(contact.match(/\d/g).length === 10)) {
+        setErrors(validation);
+        return false;
+      }
+      return true;
+    }
+
+    const validate = () => {
+      return (
+        validateNames(
+          userData.firstName,
+          {...errors, firstName: "First name is required"}
+          ) &&
+        validateNames(
+          userData.lastName,
+          {...errors, lastName: "Last name is required"}
+          ) &&
+        validateNames(
+          userData.contactNo,
+          { ...errors, contactNo: "Contact is required" }
+          ) &&
+        validateNames(
+          closeContact1.first_name,
+          {...errors, closeContact1FirstName: "First Name is required"}
+          ) &&
+        validateNames(
+          closeContact2.first_name,
+          {...errors, closeContact2FirstName: "First Name is required"}
+          ) &&
+        validateNames(
+          closeContact3.first_name,
+          {...errors, closeContact3FirstName: "First Name is required"}
+          ) &&
+        validateNames(
+          closeContact1.last_name,
+          {...errors, closeContact1LastName: "Last Name is required"}
+        ) &&
+        validateNames(
+          closeContact2.last_name,
+          {...errors, closeContact2LastName: "Last Name is required"}
+        ) &&
+        validateNames(
+          closeContact3.last_name,
+          {...errors, closeContact3LastName: "Last Name is required"}
+        ) &&
+        validateContactNumbers(
+          userData.contactNo,
+          {...errors, contactNo: "Contact is not valid"}
+        ) &&
+        validateContactNumbers(
+          closeContact1.contact_no,
+          {...errors, closeContact1ContactNo: "Contact is not valid"}
+        ) &&
+        validateContactNumbers(
+          closeContact2.contact_no,
+          {...errors, closeContact2ContactNo: "Contact is not valid"}
+        ) &&
+        validateContactNumbers(
+          closeContact3.contact_no,
+          {...errors, closeContact3ContactNo: "Contact is not valid"}
+          )
+      );
     };
 
   return (
@@ -247,7 +294,7 @@ export default function Profile() {
               {errors.contactNo}
             </FormControl.ErrorMessage>
           ) : (
-            <FormControl.HelperText>e.g. 123456789</FormControl.HelperText>
+            <FormControl.HelperText>e.g. 0123456789</FormControl.HelperText>
           )}
         </FormControl>
         <FormControl isInvalid={!!errors.address}>
@@ -324,7 +371,7 @@ export default function Profile() {
               {errors.closeContact1ContactNo}
             </FormControl.ErrorMessage>
           ) : (
-            <FormControl.HelperText>e.g. 123456789</FormControl.HelperText>
+            <FormControl.HelperText>e.g. 0123456789</FormControl.HelperText>
           )}
         </FormControl>
         <Heading
@@ -383,7 +430,7 @@ export default function Profile() {
               {errors.closeContact2ContactNo}
             </FormControl.ErrorMessage>
           ) : (
-            <FormControl.HelperText>e.g. 123456789</FormControl.HelperText>
+            <FormControl.HelperText>e.g. 0123456789</FormControl.HelperText>
           )}
         </FormControl>
         <Heading
@@ -442,7 +489,7 @@ export default function Profile() {
               {errors.closeContact3ContactNo}
             </FormControl.ErrorMessage>
           ) : (
-            <FormControl.HelperText>e.g. 123456789</FormControl.HelperText>
+            <FormControl.HelperText>e.g. 0123456789</FormControl.HelperText>
           )}
         </FormControl>
         <Button
