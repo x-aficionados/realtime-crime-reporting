@@ -2,6 +2,20 @@
 
 Design Document: https://www.notion.so/harsh8398/Interactive-Map-for-Crime-Reporting-8dbbf9a934db4fb080a5881f4c4c26db
 
+### Sign Up or Use Google Auth to login to the application.
+![sign_up_dark](https://user-images.githubusercontent.com/41751613/157589392-a895ee16-05f2-4144-8984-cd2041ec7193.PNG)
+
+### Use either dark mode or light mode based on the system theme
+![sign_up](https://user-images.githubusercontent.com/41751613/157589390-16fbc938-e390-4570-b908-395a6c6a713e.PNG)
+![sign_in_dark](https://user-images.githubusercontent.com/41751613/157589385-06849b57-d686-4958-b4d9-04d2b622bad8.PNG)
+
+### View and edit profile details
+![profile_details_dark](https://user-images.githubusercontent.com/41751613/157589378-0323c461-af12-4663-b29c-ddd37222ad79.PNG)
+
+### Report Crime by selecting a crime type and adding description (optional)
+![report_crime](https://user-images.githubusercontent.com/41751613/157589389-603cc528-d2eb-4c7b-aff5-c7061cfcaf47.PNG)
+
+
 ## Setting Up Development Environment
 
 ### Pre-requisites
