@@ -10,7 +10,7 @@ PyJWT = "^2.3.0"
 fastapi = "^0.73.0"
 google-auth = "^2.4.0"
 requests = "^2.27.1"
-cryptography = "^36.0.1"
+cryptography = "^39.0.1"
 uvicorn = {extras = ["standard"], version = "^0.17.0"}
 motor = "^2.5.1"
 passlib = {extras = ["bcrypt"], version = "^1.7.4"}
